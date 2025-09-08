@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章详情 - 个人博客</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 背景轮播 -->
+    <div class="background-slideshow">
+        <div class="bg-slide active"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+    </div>
+
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>我的博客</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-tools"></i> DayZ Tools
+                </a>
+                <a href="https://discord.gg/your-discord" class="nav-link" target="_blank">
+                    <i class="fab fa-discord"></i> Discord
+                </a>
+                <a href="https://youtube.com/@your-channel" class="nav-link" target="_blank">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+                <a href="https://github.com/your-username" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 文章内容 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 导航按钮 -->
+            <div class="article-nav">
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> 返回首页
+                </a>
+                <a href="#" id="next-article" class="next-link" style="display: none;">
+                    下一篇文章 <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 文章容器 -->
+            <article class="article-container">
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>正在加载文章...</p>
+                </div>
+                
+                <div id="article-content" class="article-full-content" style="display: none;">
+                    <!-- 文章内容将通过JavaScript加载 -->
+                </div>
+
+                <div id="article-error" class="article-error" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>文章加载失败</h3>
+                    <p>请检查网络连接或稍后重试</p>
+                    <a href="index.html" class="error-back-btn">返回首页</a>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <!-- 图片灯箱 -->
+    <div id="lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <span class="lightbox-close">&times;</span>
+            <img id="lightbox-img" src="" alt="">
+            <div class="lightbox-caption"></div>
+        </div>
+    </div>
+
+    <!-- 回到顶部按钮 -->
+    <button id="back-to-top" class="back-to-top" title="回到顶部">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="article.js"></script>
+</body>
+</html>
