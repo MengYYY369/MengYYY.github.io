@@ -15,10 +15,10 @@ const CONFIG = {
         'bg4.png'
     ],
     // 背景轮播间隔时间（毫秒）
-    SLIDESHOW_INTERVAL: 8000,
+    SLIDESHOW_INTERVAL: 5000,
 
-    SITE_TITLE: 'My Blog',                  // Website title
-    SITE_DESCRIPTION: 'Blog',       // Website description
+    SITE_TITLE: 'My MODs',                  // Website title
+    SITE_DESCRIPTION: 'My MODs',       // Website description
     AUTHOR_NAME: 'MengYYY'
 };
 
@@ -201,25 +201,23 @@ class BlogApp {
                 let dataLoaded = false;
                 for (const dataUrl of possiblePaths) {
                     try {
-                        console.log(`Trying to load data file: ${dataUrl}`);
                         const response = await fetch(dataUrl);
                         if (response.ok) {
                             const blogData = await response.json();
-                            console.log(`Successfully loaded data from ${dataUrl}, containing ${blogData.articles?.length || 0} articles`);
                             this.articles = this.filterArticles(blogData.articles);
                             this.renderArticles();
                             dataLoaded = true;
                             break;
                         }
                     } catch (pathError) {
-                        console.log(`Path ${dataUrl} loading failed:`, pathError.message);
+                        // Continue to next path
                     }
                 }
                 
                 if (dataLoaded) return;
                 
             } catch (staticError) {
-                console.log('Static data file loading failed, trying to load directly from GitHub API...', staticError);
+                // Static data file not available, fallback to API
             }
 
             // 如果静态文件不存在，回退到直接API调用
@@ -407,7 +405,6 @@ class BlogApp {
         localStorage.setItem('currentArticle', JSON.stringify(article));
         // 跳转到文章页面 - 使用id或number字段
         const articleId = article.id || article.number;
-        console.log('Navigating to article page, ID:', articleId, 'Article:', article.title);
         window.location.href = `article.html?id=${articleId}`;
     }
 

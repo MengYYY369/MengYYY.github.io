@@ -11,7 +11,7 @@ const CONFIG = {
         'bg3.png',
         'bg4.png'
     ],
-    SLIDESHOW_INTERVAL: 8000
+    SLIDESHOW_INTERVAL: 5000
 };
 
 // DOM元素
@@ -199,8 +199,6 @@ class ArticleApp {
             await this.loadAllArticles();
 
             // 尝试从静态数据中找到文章
-            console.log(`Looking for article in static data, ID: ${articleId}`);
-            console.log(`Available articles count: ${this.allArticles.length}`);
             
             const articleFromStatic = this.allArticles.find(article => {
                 // 尝试多种匹配方式
@@ -208,15 +206,9 @@ class ArticleApp {
             });
             
             if (articleFromStatic) {
-                console.log(`Found article in static data: ${articleFromStatic.title}`);
                 this.article = articleFromStatic;
                 this.renderArticle();
                 return;
-            } else {
-                console.log(`Article not found in static data, ID: ${articleId}`);
-                if (this.allArticles.length > 0) {
-                    console.log('Available article IDs:', this.allArticles.map(a => `${a.id || a.number}`).join(', '));
-                }
             }
 
             // 如果静态数据中没有，从GitHub API获取
@@ -232,9 +224,7 @@ class ArticleApp {
 
     // 从GitHub API加载单篇文章
     async loadArticleFromAPI(articleId) {
-        console.log(`Trying to load article from API, ID: ${articleId}`);
         const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues/${articleId}`;
-        console.log(`API URL: ${url}`);
         
         const headers = {
             'Accept': 'application/vnd.github.v3+json'
@@ -255,7 +245,6 @@ class ArticleApp {
         }
 
         this.article = await response.json();
-        console.log(`Successfully loaded article: ${this.article.title}`);
         this.renderArticle();
     }
 
@@ -274,24 +263,22 @@ class ArticleApp {
                 let dataLoaded = false;
                 for (const dataUrl of possiblePaths) {
                     try {
-                        console.log(`Trying to load data file: ${dataUrl}`);
                         const response = await fetch(dataUrl);
                         if (response.ok) {
                             const blogData = await response.json();
-                            console.log(`Successfully loaded data from ${dataUrl}, containing ${blogData.articles?.length || 0} articles`);
                             this.allArticles = blogData.articles;
                             dataLoaded = true;
                             break;
                         }
                     } catch (pathError) {
-                        console.log(`Path ${dataUrl} loading failed:`, pathError.message);
+                        // Continue to next path
                     }
                 }
                 
                 if (dataLoaded) return;
                 
             } catch (staticError) {
-                console.log('Static data file loading failed, trying to load from API...', staticError);
+                // Static data file not available, fallback to API
             }
 
             // 回退到API加载
@@ -369,38 +356,64 @@ class ArticleApp {
         this.setupNextArticleButton();
 
         elements.articleContent.style.display = 'block';
+        
+        // 确保在文章渲染完成后再次设置按钮（防止时序问题）
+        setTimeout(() => {
+            this.setupNextArticleButton();
+        }, 100);
     }
 
     // 设置下一篇文章按钮
     setupNextArticleButton() {
-        if (!this.article || this.allArticles.length === 0) return;
+        if (!this.article || this.allArticles.length === 0) {
+            return;
+        }
 
         // 找到当前文章在列表中的位置
-        this.currentIndex = this.allArticles.findIndex(article => 
-            (article.number === this.article.number) || (article.id === this.article.id)
-        );
+        this.currentIndex = this.allArticles.findIndex(article => {
+            const match = (article.number === this.article.number) || 
+                         (article.id === this.article.id) ||
+                         (article.number == this.article.number) || 
+                         (article.id == this.article.id);
+            return match;
+        });
         
-        if (this.currentIndex === -1) return;
+        if (this.currentIndex === -1) {
+            // 如果找不到当前文章，尝试用第一篇作为当前文章
+            this.currentIndex = 0;
+        }
 
         const nextButton = document.getElementById('next-article');
-        if (!nextButton) return;
+        if (!nextButton) {
+            return;
+        }
 
-        // 计算下一篇文章的索引（循环到第一篇）
-        const nextIndex = (this.currentIndex + 1) % this.allArticles.length;
-        const nextArticle = this.allArticles[nextIndex];
-        
-        if (nextArticle) {
-            nextButton.style.display = 'inline-flex';
-            nextButton.textContent = '';
-            nextButton.innerHTML = `Next Article <i class="fas fa-arrow-right"></i>`;
-            const nextArticleId = nextArticle.id || nextArticle.number;
-            nextButton.href = `article.html?id=${nextArticleId}`;
-            nextButton.title = nextArticle.title;
+        // 总是显示下一篇按钮（如果有文章的话）
+        if (this.allArticles.length > 0) {
+            // 计算下一篇文章的索引（循环到第一篇）
+            const nextIndex = (this.currentIndex + 1) % this.allArticles.length;
+            const nextArticle = this.allArticles[nextIndex];
             
-            // 如果是循环到第一篇，添加提示
-            if (nextIndex === 0 && this.allArticles.length > 1) {
-                nextButton.title = `${nextArticle.title} (Back to first article)`;
+            if (nextArticle) {
+                nextButton.style.display = 'inline-flex';
+                nextButton.innerHTML = `Next Article <i class="fas fa-arrow-right"></i>`;
+                
+                const nextArticleId = nextArticle.id || nextArticle.number;
+                const nextUrl = `article.html?id=${nextArticleId}`;
+                nextButton.href = nextUrl;
+                nextButton.title = nextArticle.title;
+                
+                // 如果是循环到第一篇，添加提示
+                if (nextIndex === 0 && this.allArticles.length > 1) {
+                    nextButton.title = `${nextArticle.title} (Back to first article)`;
+                }
+                
+                // 移除任何可能阻止导航的事件处理器
+                nextButton.onclick = null;
+                nextButton.removeAttribute('onclick');
             }
+        } else {
+            nextButton.style.display = 'none';
         }
     }
 
