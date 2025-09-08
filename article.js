@@ -60,6 +60,40 @@ class ArticleApp {
             });
         });
 
+        // 主题切换
+        this.setupThemeToggle();
+
+        // 灯箱事件
+        this.setupLightboxEvents();
+    }
+
+    // 设置主题切换
+    setupThemeToggle() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // 检查本地存储的主题
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        this.updateThemeIcon(themeIcon, savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            this.updateThemeIcon(themeIcon, newTheme);
+        });
+    }
+
+    // 更新主题图标
+    updateThemeIcon(icon, theme) {
+        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // 设置灯箱事件
+    setupLightboxEvents() {
         // 灯箱关闭事件
         document.querySelector('.lightbox-close').addEventListener('click', () => {
             this.closeLightbox();
@@ -71,10 +105,23 @@ class ArticleApp {
             }
         });
 
-        // ESC键关闭灯箱
+        // 灯箱导航
+        document.getElementById('lightbox-prev').addEventListener('click', () => {
+            this.showPrevImage();
+        });
+
+        document.getElementById('lightbox-next').addEventListener('click', () => {
+            this.showNextImage();
+        });
+
+        // ESC键关闭灯箱，左右键导航
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                this.showPrevImage();
+            } else if (e.key === 'ArrowRight') {
+                this.showNextImage();
             }
         });
     }
@@ -447,16 +494,74 @@ class ArticleApp {
 
     // 打开图片灯箱
     openLightbox(src, caption = '') {
+        // 收集页面中所有图片
+        this.collectPageImages();
+        
+        // 找到当前图片的索引
+        this.currentImageIndex = this.pageImages.findIndex(img => img.src === src);
+        
         elements.lightboxImg.src = src;
-        elements.lightboxCaption.textContent = caption;
         elements.lightbox.style.display = 'block';
         document.body.style.overflow = 'hidden';
+        
+        // 更新导航按钮状态
+        this.updateLightboxNavigation();
+    }
+
+    // 收集页面中的所有图片
+    collectPageImages() {
+        this.pageImages = [];
+        const images = document.querySelectorAll('.article-image, #article-content img');
+        images.forEach(img => {
+            if (img.src && img.src !== CONFIG.DEFAULT_COVER) {
+                this.pageImages.push({
+                    src: img.src,
+                    alt: img.alt || ''
+                });
+            }
+        });
+    }
+
+    // 显示上一张图片
+    showPrevImage() {
+        if (this.pageImages && this.pageImages.length > 1) {
+            this.currentImageIndex = (this.currentImageIndex - 1 + this.pageImages.length) % this.pageImages.length;
+            const prevImage = this.pageImages[this.currentImageIndex];
+            elements.lightboxImg.src = prevImage.src;
+            this.updateLightboxNavigation();
+        }
+    }
+
+    // 显示下一张图片
+    showNextImage() {
+        if (this.pageImages && this.pageImages.length > 1) {
+            this.currentImageIndex = (this.currentImageIndex + 1) % this.pageImages.length;
+            const nextImage = this.pageImages[this.currentImageIndex];
+            elements.lightboxImg.src = nextImage.src;
+            this.updateLightboxNavigation();
+        }
+    }
+
+    // 更新灯箱导航按钮
+    updateLightboxNavigation() {
+        const prevBtn = document.getElementById('lightbox-prev');
+        const nextBtn = document.getElementById('lightbox-next');
+        
+        if (this.pageImages && this.pageImages.length > 1) {
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+        } else {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        }
     }
 
     // 关闭图片灯箱
     closeLightbox() {
         elements.lightbox.style.display = 'none';
         document.body.style.overflow = 'auto';
+        this.pageImages = [];
+        this.currentImageIndex = -1;
     }
 
     // Show error message
