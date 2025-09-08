@@ -283,6 +283,8 @@ class BlogApp {
 
     // 渲染文章列表
     renderArticles() {
+        console.log('Rendering articles:', this.articles.length, 'articles found');
+        
         if (this.articles.length === 0) {
             elements.noArticles.style.display = 'block';
             return;
@@ -291,7 +293,8 @@ class BlogApp {
         elements.articlesGrid.style.display = 'grid';
         elements.articlesGrid.innerHTML = '';
 
-        this.articles.forEach(article => {
+        this.articles.forEach((article, index) => {
+            console.log(`Rendering article ${index + 1}:`, article.title, 'ID:', article.id);
             const articleCard = this.createArticleCard(article);
             elements.articlesGrid.appendChild(articleCard);
         });
