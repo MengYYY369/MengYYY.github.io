@@ -266,7 +266,9 @@ class ArticleApp {
                         const response = await fetch(dataUrl);
                         if (response.ok) {
                             const blogData = await response.json();
+                            console.log('Article page: Loaded blog data with', blogData.articles.length, 'articles');
                             this.allArticles = blogData.articles;
+                            console.log('Article page: Set allArticles to', this.allArticles.length, 'articles');
                             dataLoaded = true;
                             break;
                         }
@@ -383,11 +385,12 @@ class ArticleApp {
 
         // 找到当前文章在列表中的位置
         this.currentIndex = this.allArticles.findIndex(article => {
-            console.log(`Comparing: current article ID ${this.article.id} with list article ID ${article.id}`);
-            const match = (article.number === this.article.number) || 
-                         (article.id === this.article.id) ||
-                         (article.number == this.article.number) || 
-                         (article.id == this.article.id);
+            console.log(`Comparing: current article ID ${this.article.id} (type: ${typeof this.article.id}) with list article ID ${article.id} (type: ${typeof article.id})`);
+            // 使用严格相等比较，确保类型和值都匹配
+            const match = (article.id === this.article.id) || 
+                         (article.number === this.article.number) ||
+                         (String(article.id) === String(this.article.id)) ||
+                         (String(article.number) === String(this.article.number));
             console.log(`Match result: ${match}`);
             return match;
         });

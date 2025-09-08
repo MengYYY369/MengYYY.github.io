@@ -204,7 +204,10 @@ class BlogApp {
                         const response = await fetch(dataUrl);
                         if (response.ok) {
                             const blogData = await response.json();
+                            console.log('Loaded blog data:', blogData);
+                            console.log('Raw articles from data file:', blogData.articles.length);
                             this.articles = this.filterArticles(blogData.articles);
+                            console.log('Final articles after filtering:', this.articles.length);
                             this.renderArticles();
                             dataLoaded = true;
                             break;
@@ -270,15 +273,22 @@ class BlogApp {
 
     // 过滤文章
     filterArticles(articles) {
+        console.log('Filtering articles, input count:', articles.length);
+        console.log('ARTICLE_LABELS config:', CONFIG.ARTICLE_LABELS);
+        
         if (CONFIG.ARTICLE_LABELS.length === 0) {
+            console.log('No label filter, returning all articles:', articles.length);
             return articles; // 静态数据已经过滤过了
         }
         
-        return articles.filter(article => {
+        const filtered = articles.filter(article => {
             return article.labels && article.labels.some(label => 
                 CONFIG.ARTICLE_LABELS.includes(label.name.toLowerCase())
             );
         });
+        
+        console.log('Filtered articles count:', filtered.length);
+        return filtered;
     }
 
     // 渲染文章列表
