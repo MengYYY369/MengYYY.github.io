@@ -4,9 +4,9 @@ const CONFIG = {
     GITHUB_USERNAME: 'MengYYY369',
     GITHUB_REPO: 'MengYYY.github.io',
     // 可选：GitHub Personal Access Token (用于提高API限制)
-    GITHUB_TOKEN: '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', // 留空或填入你的token
+    GITHUB_TOKEN: '', // 为了安全，移除token，使用公开仓库访问
     // 默认封面图片
-    DEFAULT_COVER: 'https://via.placeholder.com/400x200/3498db/ffffff?text=Blog+Post',
+    DEFAULT_COVER: 'bg.png',
     // 文章标签过滤 (留空表示获取所有带标签的issues)
     ARTICLE_LABELS: [], // 可以修改为你想要的标签
     // 背景图片轮播 - 可以自定义背景图片
@@ -14,7 +14,19 @@ const CONFIG = {
         'bg.png'
     ],
     // 背景轮播间隔时间（毫秒）
-    SLIDESHOW_INTERVAL: 8000
+    SLIDESHOW_INTERVAL: 8000,
+
+    SITE_TITLE: 'My MODs',                  // 网站标题
+    SITE_DESCRIPTION: 'My MODs Blog',       // 网站描述
+    AUTHOR_NAME: 'MengYYY',
+
+    // 社交媒体链接
+    SOCIAL_LINKS: {
+        discord: 'https://discord.gg/your-discord',
+        youtube: 'https://youtube.com/@your-channel',
+        github: 'https://github.com/your-username',
+        twitter: 'https://twitter.com/your-username'
+    }
 };
 
 // DOM元素
@@ -126,51 +138,85 @@ class BlogApp {
         });
     }
 
-    // 从GitHub API加载文章
+    // 从静态数据文件加载文章
     async loadArticles() {
         try {
             elements.loading.style.display = 'block';
             elements.articlesGrid.style.display = 'none';
             elements.noArticles.style.display = 'none';
 
-            const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues?state=open&sort=created&direction=desc`;
-            
-            const headers = {
-                'Accept': 'application/vnd.github.v3+json'
-            };
-
-            // 如果提供了token，添加到请求头
-            if (CONFIG.GITHUB_TOKEN) {
-                headers['Authorization'] = `token ${CONFIG.GITHUB_TOKEN}`;
-            }
-
-            const response = await fetch(url, { headers });
-            
-            if (!response.ok) {
-                throw new Error(`GitHub API error: ${response.status}`);
-            }
-
-            const issues = await response.json();
-            
-            // 过滤带有指定标签的issues
-            this.articles = issues.filter(issue => {
-                if (CONFIG.ARTICLE_LABELS.length === 0) {
-                    // 如果没有指定标签，返回所有有标签的issues
-                    return issue.labels && issue.labels.length > 0;
+            // 首先尝试从静态数据文件加载
+            try {
+                const response = await fetch('data/blog-data.json');
+                if (response.ok) {
+                    const blogData = await response.json();
+                    this.articles = this.filterArticles(blogData.articles);
+                    this.renderArticles();
+                    return;
                 }
-                // 检查是否包含指定的标签
-                return issue.labels && issue.labels.some(label => 
-                    CONFIG.ARTICLE_LABELS.includes(label.name.toLowerCase())
-                );
-            });
+            } catch (staticError) {
+                console.log('静态数据文件不存在，尝试直接从GitHub API加载...');
+            }
 
-            this.renderArticles();
+            // 如果静态文件不存在，回退到直接API调用
+            await this.loadArticlesFromAPI();
+
         } catch (error) {
             console.error('加载文章失败:', error);
             this.showError('加载文章失败，请检查网络连接或仓库配置');
         } finally {
             elements.loading.style.display = 'none';
         }
+    }
+
+    // 从GitHub API直接加载文章（回退方案）
+    async loadArticlesFromAPI() {
+        // 检查仓库配置
+        if (!CONFIG.GITHUB_USERNAME || !CONFIG.GITHUB_REPO) {
+            throw new Error('请在配置中设置正确的GitHub用户名和仓库名');
+        }
+        
+        const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues?state=open&sort=created&direction=desc`;
+        
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json'
+        };
+
+        // 注意：不再使用GITHUB_TOKEN，因为它应该为空
+        const response = await fetch(url, { headers });
+        
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
+
+        const issues = await response.json();
+        
+        // 过滤带有指定标签的issues
+        this.articles = issues.filter(issue => {
+            if (CONFIG.ARTICLE_LABELS.length === 0) {
+                // 如果没有指定标签，返回所有有标签的issues
+                return issue.labels && issue.labels.length > 0;
+            }
+            // 检查是否包含指定的标签
+            return issue.labels && issue.labels.some(label => 
+                CONFIG.ARTICLE_LABELS.includes(label.name.toLowerCase())
+            );
+        });
+
+        this.renderArticles();
+    }
+
+    // 过滤文章
+    filterArticles(articles) {
+        if (CONFIG.ARTICLE_LABELS.length === 0) {
+            return articles; // 静态数据已经过滤过了
+        }
+        
+        return articles.filter(article => {
+            return article.labels && article.labels.some(label => 
+                CONFIG.ARTICLE_LABELS.includes(label.name.toLowerCase())
+            );
+        });
     }
 
     // 渲染文章列表
@@ -194,11 +240,11 @@ class BlogApp {
         const card = document.createElement('div');
         card.className = 'article-card';
 
-        // 提取文章中的第一张图片作为封面
-        const coverImage = this.extractFirstImage(article.body) || CONFIG.DEFAULT_COVER;
+        // 使用预处理的封面图片或默认图片
+        const coverImage = article.coverImage || CONFIG.DEFAULT_COVER;
         
-        // 生成文章摘要
-        const excerpt = this.generateExcerpt(article.body);
+        // 使用预处理的摘要或生成新的
+        const excerpt = article.excerpt || this.generateExcerpt(article.body);
         
         // 格式化日期
         const date = new Date(article.created_at).toLocaleDateString('zh-CN');

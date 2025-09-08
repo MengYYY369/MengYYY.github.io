@@ -4,7 +4,7 @@
 const CONFIG = {
     GITHUB_USERNAME: 'MengYYY369',
     GITHUB_REPO: 'MengYYY.github.io',
-    GITHUB_TOKEN: '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',
+    GITHUB_TOKEN: '', // 为了安全，移除token
     // 背景图片轮播
     BACKGROUND_IMAGES: [
         'bg.png'
@@ -145,25 +145,16 @@ class ArticleApp {
             // 先加载所有文章
             await this.loadAllArticles();
 
-            // 从GitHub API获取当前文章
-            const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues/${articleId}`;
-            
-            const headers = {
-                'Accept': 'application/vnd.github.v3+json'
-            };
-
-            if (CONFIG.GITHUB_TOKEN) {
-                headers['Authorization'] = `token ${CONFIG.GITHUB_TOKEN}`;
+            // 尝试从静态数据中找到文章
+            const articleFromStatic = this.allArticles.find(article => article.id == articleId);
+            if (articleFromStatic) {
+                this.article = articleFromStatic;
+                this.renderArticle();
+                return;
             }
 
-            const response = await fetch(url, { headers });
-            
-            if (!response.ok) {
-                throw new Error(`GitHub API error: ${response.status}`);
-            }
-
-            this.article = await response.json();
-            this.renderArticle();
+            // 如果静态数据中没有，从GitHub API获取
+            await this.loadArticleFromAPI(articleId);
 
         } catch (error) {
             console.error('加载文章失败:', error);
@@ -173,40 +164,74 @@ class ArticleApp {
         }
     }
 
+    // 从GitHub API加载单篇文章
+    async loadArticleFromAPI(articleId) {
+        const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues/${articleId}`;
+        
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json'
+        };
+
+        // 不再使用GITHUB_TOKEN
+        const response = await fetch(url, { headers });
+        
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
+
+        this.article = await response.json();
+        this.renderArticle();
+    }
+
     // 加载所有文章
     async loadAllArticles() {
         try {
-            const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues?state=open&sort=created&direction=desc`;
-            
-            const headers = {
-                'Accept': 'application/vnd.github.v3+json'
-            };
-
-            if (CONFIG.GITHUB_TOKEN) {
-                headers['Authorization'] = `token ${CONFIG.GITHUB_TOKEN}`;
-            }
-
-            const response = await fetch(url, { headers });
-            
-            if (!response.ok) {
-                throw new Error(`GitHub API error: ${response.status}`);
-            }
-
-            const issues = await response.json();
-            
-            // 过滤文章（与主页逻辑相同）
-            this.allArticles = issues.filter(issue => {
-                if (CONFIG.ARTICLE_LABELS.length === 0) {
-                    return issue.labels && issue.labels.length > 0;
+            // 首先尝试从静态数据文件加载
+            try {
+                const response = await fetch('data/blog-data.json');
+                if (response.ok) {
+                    const blogData = await response.json();
+                    this.allArticles = blogData.articles;
+                    return;
                 }
-                return issue.labels && issue.labels.some(label => 
-                    CONFIG.ARTICLE_LABELS.includes(label.name.toLowerCase())
-                );
-            });
+            } catch (staticError) {
+                console.log('静态数据文件不存在，尝试从API加载...');
+            }
+
+            // 回退到API加载
+            await this.loadAllArticlesFromAPI();
 
         } catch (error) {
             console.error('加载文章列表失败:', error);
         }
+    }
+
+    // 从API加载所有文章
+    async loadAllArticlesFromAPI() {
+        const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues?state=open&sort=created&direction=desc`;
+        
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json'
+        };
+
+        // 不再使用GITHUB_TOKEN
+        const response = await fetch(url, { headers });
+        
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
+
+        const issues = await response.json();
+        
+        // 过滤文章（与主页逻辑相同）
+        this.allArticles = issues.filter(issue => {
+            if (CONFIG.ARTICLE_LABELS && CONFIG.ARTICLE_LABELS.length > 0) {
+                return issue.labels && issue.labels.some(label => 
+                    CONFIG.ARTICLE_LABELS.includes(label.name.toLowerCase())
+                );
+            }
+            return issue.labels && issue.labels.length > 0;
+        });
     }
 
     // 渲染文章

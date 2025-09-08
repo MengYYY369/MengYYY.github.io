@@ -42,17 +42,17 @@ body {
     opacity: 0.1;
 }
 
-/* 默认背景图片 - 可以通过JavaScript自定义 */
+/* 默认背景图片 - 使用bg.png作为默认封面 */
 .bg-slide:nth-child(1) {
-    background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-image: url('bg.png');
 }
 
 .bg-slide:nth-child(2) {
-    background-image: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background-image: url('bg.png');
 }
 
 .bg-slide:nth-child(3) {
-    background-image: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background-image: url('bg.png');
 }
 
 /* 导航栏样式 */
