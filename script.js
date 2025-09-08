@@ -468,8 +468,8 @@ class BlogApp {
         const nextBtn = document.getElementById('lightbox-next');
         
         if (this.pageImages && this.pageImages.length > 1) {
-            prevBtn.style.display = 'block';
-            nextBtn.style.display = 'block';
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
         } else {
             prevBtn.style.display = 'none';
             nextBtn.style.display = 'none';

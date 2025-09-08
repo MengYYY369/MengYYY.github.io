@@ -382,19 +382,24 @@ class ArticleApp {
         
         if (this.currentIndex === -1) return;
 
-        // 检查是否有下一篇文章（下一个索引）
-        const nextIndex = this.currentIndex + 1;
-        if (nextIndex < this.allArticles.length) {
-            const nextArticle = this.allArticles[nextIndex];
-            const nextButton = document.getElementById('next-article');
+        const nextButton = document.getElementById('next-article');
+        if (!nextButton) return;
+
+        // 计算下一篇文章的索引（循环到第一篇）
+        const nextIndex = (this.currentIndex + 1) % this.allArticles.length;
+        const nextArticle = this.allArticles[nextIndex];
+        
+        if (nextArticle) {
+            nextButton.style.display = 'inline-flex';
+            nextButton.textContent = '';
+            nextButton.innerHTML = `Next Article <i class="fas fa-arrow-right"></i>`;
+            const nextArticleId = nextArticle.id || nextArticle.number;
+            nextButton.href = `article.html?id=${nextArticleId}`;
+            nextButton.title = nextArticle.title;
             
-            if (nextButton) {
-                nextButton.style.display = 'inline-flex';
-                nextButton.textContent = '';
-                nextButton.innerHTML = `Next Article <i class="fas fa-arrow-right"></i>`;
-                const nextArticleId = nextArticle.id || nextArticle.number;
-                nextButton.href = `article.html?id=${nextArticleId}`;
-                nextButton.title = nextArticle.title;
+            // 如果是循环到第一篇，添加提示
+            if (nextIndex === 0 && this.allArticles.length > 1) {
+                nextButton.title = `${nextArticle.title} (Back to first article)`;
             }
         }
     }
@@ -548,8 +553,8 @@ class ArticleApp {
         const nextBtn = document.getElementById('lightbox-next');
         
         if (this.pageImages && this.pageImages.length > 1) {
-            prevBtn.style.display = 'block';
-            nextBtn.style.display = 'block';
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
         } else {
             prevBtn.style.display = 'none';
             nextBtn.style.display = 'none';
