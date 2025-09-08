@@ -365,7 +365,12 @@ class ArticleApp {
 
     // 设置下一篇文章按钮
     setupNextArticleButton() {
+        console.log('Setting up next article button');
+        console.log('Current article:', this.article ? this.article.title : 'None');
+        console.log('All articles count:', this.allArticles.length);
+        
         if (!this.article || this.allArticles.length === 0) {
+            console.log('No article or no articles list, hiding next button');
             return;
         }
 
@@ -378,42 +383,58 @@ class ArticleApp {
             return match;
         });
         
+        console.log('Current article index:', this.currentIndex);
+        
         if (this.currentIndex === -1) {
             // 如果找不到当前文章，尝试用第一篇作为当前文章
             this.currentIndex = 0;
+            console.log('Article not found in list, using index 0');
         }
 
         const nextButton = document.getElementById('next-article');
         if (!nextButton) {
+            console.log('Next button element not found');
             return;
         }
 
-        // 总是显示下一篇按钮（如果有文章的话）
-        if (this.allArticles.length > 0) {
+        // 总是显示下一篇按钮（如果有多于1篇文章的话）
+        if (this.allArticles.length > 1) {
             // 计算下一篇文章的索引（循环到第一篇）
             const nextIndex = (this.currentIndex + 1) % this.allArticles.length;
             const nextArticle = this.allArticles[nextIndex];
             
+            console.log('Next article index:', nextIndex);
+            console.log('Next article:', nextArticle ? nextArticle.title : 'None');
+            
             if (nextArticle) {
                 nextButton.style.display = 'inline-flex';
-                nextButton.innerHTML = `Next Article <i class="fas fa-arrow-right"></i>`;
                 
                 const nextArticleId = nextArticle.id || nextArticle.number;
                 const nextUrl = `article.html?id=${nextArticleId}`;
                 nextButton.href = nextUrl;
-                nextButton.title = nextArticle.title;
                 
-                // 如果是循环到第一篇，添加提示
-                if (nextIndex === 0 && this.allArticles.length > 1) {
-                    nextButton.title = `${nextArticle.title} (Back to first article)`;
+                // 如果是循环到第一篇，添加特殊提示
+                if (nextIndex === 0 && this.currentIndex !== this.allArticles.length - 1) {
+                    nextButton.innerHTML = `Next Article (Back to First) <i class="fas fa-arrow-right"></i>`;
+                    nextButton.title = `${nextArticle.title} (循环到第一篇)`;
+                } else {
+                    nextButton.innerHTML = `Next Article <i class="fas fa-arrow-right"></i>`;
+                    nextButton.title = nextArticle.title;
                 }
                 
                 // 移除任何可能阻止导航的事件处理器
                 nextButton.onclick = null;
                 nextButton.removeAttribute('onclick');
+                
+                console.log('Next button configured:', nextUrl);
             }
+        } else if (this.allArticles.length === 1) {
+            // 只有一篇文章时隐藏按钮
+            nextButton.style.display = 'none';
+            console.log('Only one article, hiding next button');
         } else {
             nextButton.style.display = 'none';
+            console.log('No articles, hiding next button');
         }
     }
 
