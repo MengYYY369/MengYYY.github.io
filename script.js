@@ -11,7 +11,10 @@ const CONFIG = {
     ARTICLE_LABELS: [], // 可以修改为你想要的标签
     // 背景图片轮播 - 可以自定义背景图片
     BACKGROUND_IMAGES: [
-        'bg.png'
+        'bg.png',
+        'bg2.png',
+        'bg3.png',
+        'bg4.png'
     ],
     // 背景轮播间隔时间（毫秒）
     SLIDESHOW_INTERVAL: 8000,
@@ -147,20 +150,35 @@ class BlogApp {
 
             // 首先尝试从静态数据文件加载
             try {
-                // 使用绝对路径或相对路径，确保在不同环境下都能正确加载
-                const dataUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                    ? 'data/blog-data.json' 
-                    : './data/blog-data.json';
+                // 尝试多个可能的路径
+                const possiblePaths = [
+                    './data/blog-data.json',
+                    'data/blog-data.json',
+                    '/data/blog-data.json'
+                ];
                 
-                const response = await fetch(dataUrl);
-                if (response.ok) {
-                    const blogData = await response.json();
-                    this.articles = this.filterArticles(blogData.articles);
-                    this.renderArticles();
-                    return;
+                let dataLoaded = false;
+                for (const dataUrl of possiblePaths) {
+                    try {
+                        console.log(`尝试加载数据文件: ${dataUrl}`);
+                        const response = await fetch(dataUrl);
+                        if (response.ok) {
+                            const blogData = await response.json();
+                            console.log(`成功从 ${dataUrl} 加载数据，包含 ${blogData.articles?.length || 0} 篇文章`);
+                            this.articles = this.filterArticles(blogData.articles);
+                            this.renderArticles();
+                            dataLoaded = true;
+                            break;
+                        }
+                    } catch (pathError) {
+                        console.log(`路径 ${dataUrl} 加载失败:`, pathError.message);
+                    }
                 }
+                
+                if (dataLoaded) return;
+                
             } catch (staticError) {
-                console.log('静态数据文件不存在，尝试直接从GitHub API加载...', staticError);
+                console.log('静态数据文件加载失败，尝试直接从GitHub API加载...', staticError);
             }
 
             // 如果静态文件不存在，回退到直接API调用

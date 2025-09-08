@@ -7,7 +7,10 @@ const CONFIG = {
     GITHUB_TOKEN: '', // 为了安全，移除token
     // 背景图片轮播
     BACKGROUND_IMAGES: [
-        'bg.png'
+        'bg.png',
+        'bg2.png',
+        'bg3.png',
+        'bg4.png'
     ],
     SLIDESHOW_INTERVAL: 8000
 };
@@ -146,11 +149,24 @@ class ArticleApp {
             await this.loadAllArticles();
 
             // 尝试从静态数据中找到文章
-            const articleFromStatic = this.allArticles.find(article => article.id == articleId);
+            console.log(`在静态数据中查找文章 ID: ${articleId}`);
+            console.log(`可用文章数量: ${this.allArticles.length}`);
+            
+            const articleFromStatic = this.allArticles.find(article => {
+                // 尝试多种匹配方式
+                return article.id == articleId || article.number == articleId;
+            });
+            
             if (articleFromStatic) {
+                console.log(`在静态数据中找到文章: ${articleFromStatic.title}`);
                 this.article = articleFromStatic;
                 this.renderArticle();
                 return;
+            } else {
+                console.log(`静态数据中未找到文章 ID: ${articleId}`);
+                if (this.allArticles.length > 0) {
+                    console.log('可用文章IDs:', this.allArticles.map(a => `${a.id || a.number}`).join(', '));
+                }
             }
 
             // 如果静态数据中没有，从GitHub API获取
@@ -158,7 +174,7 @@ class ArticleApp {
 
         } catch (error) {
             console.error('加载文章失败:', error);
-            this.showError();
+            this.showError(error.message);
         } finally {
             elements.loading.style.display = 'none';
         }
@@ -166,7 +182,9 @@ class ArticleApp {
 
     // 从GitHub API加载单篇文章
     async loadArticleFromAPI(articleId) {
+        console.log(`尝试从API加载文章 ID: ${articleId}`);
         const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues/${articleId}`;
+        console.log(`API URL: ${url}`);
         
         const headers = {
             'Accept': 'application/vnd.github.v3+json'
@@ -176,10 +194,18 @@ class ArticleApp {
         const response = await fetch(url, { headers });
         
         if (!response.ok) {
-            throw new Error(`GitHub API error: ${response.status}`);
+            console.error(`API请求失败: ${response.status} ${response.statusText}`);
+            if (response.status === 404) {
+                throw new Error(`文章不存在: Issue #${articleId} 未找到。可能已被删除或仓库配置错误。`);
+            } else if (response.status === 403) {
+                throw new Error(`访问被拒绝: 可能是API限制或仓库私有。状态码: ${response.status}`);
+            } else {
+                throw new Error(`GitHub API错误: ${response.status} ${response.statusText}`);
+            }
         }
 
         this.article = await response.json();
+        console.log(`成功加载文章: ${this.article.title}`);
         this.renderArticle();
     }
 
@@ -188,19 +214,34 @@ class ArticleApp {
         try {
             // 首先尝试从静态数据文件加载
             try {
-                // 使用绝对路径或相对路径，确保在不同环境下都能正确加载
-                const dataUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                    ? 'data/blog-data.json' 
-                    : './data/blog-data.json';
+                // 尝试多个可能的路径
+                const possiblePaths = [
+                    './data/blog-data.json',
+                    'data/blog-data.json',
+                    '/data/blog-data.json'
+                ];
                 
-                const response = await fetch(dataUrl);
-                if (response.ok) {
-                    const blogData = await response.json();
-                    this.allArticles = blogData.articles;
-                    return;
+                let dataLoaded = false;
+                for (const dataUrl of possiblePaths) {
+                    try {
+                        console.log(`尝试加载数据文件: ${dataUrl}`);
+                        const response = await fetch(dataUrl);
+                        if (response.ok) {
+                            const blogData = await response.json();
+                            console.log(`成功从 ${dataUrl} 加载数据，包含 ${blogData.articles?.length || 0} 篇文章`);
+                            this.allArticles = blogData.articles;
+                            dataLoaded = true;
+                            break;
+                        }
+                    } catch (pathError) {
+                        console.log(`路径 ${dataUrl} 加载失败:`, pathError.message);
+                    }
                 }
+                
+                if (dataLoaded) return;
+                
             } catch (staticError) {
-                console.log('静态数据文件不存在，尝试从API加载...', staticError);
+                console.log('静态数据文件加载失败，尝试从API加载...', staticError);
             }
 
             // 回退到API加载
@@ -413,9 +454,37 @@ class ArticleApp {
     }
 
     // 显示错误信息
-    showError() {
+    showError(message = '文章加载失败') {
         elements.articleError.style.display = 'block';
         elements.articleContent.style.display = 'none';
+        
+        // 更新错误信息显示
+        const errorContainer = elements.articleError;
+        if (errorContainer) {
+            // 查找错误信息段落，如果不存在则创建
+            let errorMessage = errorContainer.querySelector('.error-message');
+            if (!errorMessage) {
+                errorMessage = document.createElement('p');
+                errorMessage.className = 'error-message';
+                errorMessage.style.cssText = 'color: #666; margin: 15px 0; font-size: 1rem;';
+                // 插入到h3标题后面
+                const h3 = errorContainer.querySelector('h3');
+                if (h3 && h3.nextSibling) {
+                    errorContainer.insertBefore(errorMessage, h3.nextSibling);
+                } else if (h3) {
+                    errorContainer.appendChild(errorMessage);
+                }
+            }
+            errorMessage.textContent = message;
+        }
+        
+        // 在控制台输出详细信息
+        console.error('文章加载错误详情:', {
+            message: message,
+            url: window.location.href,
+            articleId: new URLSearchParams(window.location.search).get('id'),
+            timestamp: new Date().toISOString()
+        });
     }
 }
 
