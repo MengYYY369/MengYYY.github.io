@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客演示 - 个人博客</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 背景轮播 -->
+    <div class="background-slideshow">
+        <div class="bg-slide active"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+    </div>
+
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>我的博客</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="#" class="nav-link active">演示</a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-tools"></i> DayZ Tools
+                </a>
+                <a href="https://discord.gg/your-discord" class="nav-link" target="_blank">
+                    <i class="fab fa-discord"></i> Discord
+                </a>
+                <a href="https://youtube.com/@your-channel" class="nav-link" target="_blank">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+                <a href="https://github.com/your-username" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 演示说明 -->
+            <div style="text-align: center; margin-bottom: 40px; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                <h1 style="color: #2c3e50; margin-bottom: 15px;">博客演示页面</h1>
+                <p style="color: #666; font-size: 1.1rem; line-height: 1.6;">
+                    这是一个演示页面，展示博客的设计效果。<br>
+                    配置完成后，文章将从GitHub Issues自动加载。
+                </p>
+                <a href="index.html" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: #3498db; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">
+                    返回首页
+                </a>
+            </div>
+            
+            <!-- 演示文章网格 -->
+            <div class="articles-grid">
+                <!-- 演示文章1 -->
+                <div class="article-card">
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=200&fit=crop" alt="技术分享" class="article-image">
+                    <div class="article-content">
+                        <h3 class="article-title">如何搭建个人博客网站</h3>
+                        <p class="article-excerpt">详细介绍如何使用GitHub Issues和GitHub Pages搭建一个现代化的个人博客网站，包括响应式设计、图片灯箱等功能的实现...</p>
+                        <div class="article-meta">
+                            <span class="article-date">2024-01-15</span>
+                            <div class="article-tags">
+                                <span class="tag">技术</span>
+                                <span class="tag">教程</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 演示文章2 -->
+                <div class="article-card">
+                    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=200&fit=crop" alt="编程技巧" class="article-image">
+                    <div class="article-content">
+                        <h3 class="article-title">JavaScript ES6+ 新特性详解</h3>
+                        <p class="article-excerpt">深入探讨JavaScript ES6及以后版本的新特性，包括箭头函数、解构赋值、模块化、异步编程等现代JavaScript开发必备知识...</p>
+                        <div class="article-meta">
+                            <span class="article-date">2024-01-12</span>
+                            <div class="article-tags">
+                                <span class="tag">JavaScript</span>
+                                <span class="tag">前端</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 演示文章3 -->
+                <div class="article-card">
+                    <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=200&fit=crop" alt="设计思考" class="article-image">
+                    <div class="article-content">
+                        <h3 class="article-title">现代网页设计的简约美学</h3>
+                        <p class="article-excerpt">探讨现代网页设计中的简约主义原则，如何通过合理的留白、优雅的字体和和谐的色彩搭配创造出令人印象深刻的用户体验...</p>
+                        <div class="article-meta">
+                            <span class="article-date">2024-01-10</span>
+                            <div class="article-tags">
+                                <span class="tag">设计</span>
+                                <span class="tag">UI/UX</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 演示文章4 -->
+                <div class="article-card">
+                    <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=400&h=200&fit=crop" alt="开发工具" class="article-image">
+                    <div class="article-content">
+                        <h3 class="article-title">提高开发效率的工具推荐</h3>
+                        <p class="article-excerpt">分享一些能够显著提高开发效率的工具和技巧，包括代码编辑器配置、命令行工具、自动化脚本等，让开发工作更加高效...</p>
+                        <div class="article-meta">
+                            <span class="article-date">2024-01-08</span>
+                            <div class="article-tags">
+                                <span class="tag">工具</span>
+                                <span class="tag">效率</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 演示文章5 -->
+                <div class="article-card">
+                    <img src="https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=400&h=200&fit=crop" alt="学习心得" class="article-image">
+                    <div class="article-content">
+                        <h3 class="article-title">程序员的持续学习之路</h3>
+                        <p class="article-excerpt">在快速发展的技术领域中，如何保持持续学习的习惯，制定有效的学习计划，平衡工作与学习的关系，成为更优秀的开发者...</p>
+                        <div class="article-meta">
+                            <span class="article-date">2024-01-05</span>
+                            <div class="article-tags">
+                                <span class="tag">学习</span>
+                                <span class="tag">成长</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 演示文章6 -->
+                <div class="article-card">
+                    <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=200&fit=crop" alt="项目管理" class="article-image">
+                    <div class="article-content">
+                        <h3 class="article-title">敏捷开发实践经验分享</h3>
+                        <p class="article-excerpt">结合实际项目经验，分享敏捷开发方法论在团队协作中的应用，包括需求管理、迭代规划、代码审查等最佳实践...</p>
+                        <div class="article-meta">
+                            <span class="article-date">2024-01-03</span>
+                            <div class="article-tags">
+                                <span class="tag">敏捷</span>
+                                <span class="tag">团队</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 图片灯箱 -->
+    <div id="lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <span class="lightbox-close">&times;</span>
+            <img id="lightbox-img" src="" alt="">
+            <div class="lightbox-caption"></div>
+        </div>
+    </div>
+
+    <!-- 回到顶部按钮 -->
+    <button id="back-to-top" class="back-to-top" title="回到顶部">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // 演示页面的简化脚本
+        document.addEventListener('DOMContentLoaded', () => {
+            // 移动端导航菜单
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+
+            // 背景轮播
+            const bgSlides = document.querySelectorAll('.bg-slide');
+            const backgroundImages = [
+                'bg.png'
+            ];
+
+            // 设置背景图片
+            bgSlides.forEach((slide, index) => {
+                if (backgroundImages[index]) {
+                    slide.style.backgroundImage = `url(${backgroundImages[index]})`;
+                }
+            });
+
+            let currentSlide = 0;
+            setInterval(() => {
+                bgSlides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % bgSlides.length;
+                bgSlides[currentSlide].classList.add('active');
+            }, 8000);
+
+            // 回到顶部按钮
+            const backToTop = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTop.classList.add('show');
+                } else {
+                    backToTop.classList.remove('show');
+                }
+            });
+
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // 演示文章点击效果
+            const articleCards = document.querySelectorAll('.article-card');
+            articleCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    alert('这是演示页面！\n\n在实际使用中，点击文章卡片会打开完整的文章内容。\n\n请配置GitHub仓库信息后使用 index.html 查看真实效果。');
+                });
+            });
+
+            // 灯箱功能
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxClose = document.querySelector('.lightbox-close');
+
+            // 图片点击事件
+            document.querySelectorAll('.article-image').forEach(img => {
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    lightboxImg.src = img.src;
+                    lightbox.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            // 关闭灯箱
+            lightboxClose.addEventListener('click', () => {
+                lightbox.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    lightbox.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
