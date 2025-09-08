@@ -327,7 +327,7 @@ class ArticleApp {
         }
 
         // Update page title
-        document.title = `${this.article.title} - Personal Blog`;
+        document.title = `${this.article.title} - My MODs`;
 
         // 转换Markdown到HTML
         const htmlContent = this.markdownToHtml(this.article.body);
