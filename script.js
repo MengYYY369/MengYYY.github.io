@@ -147,7 +147,12 @@ class BlogApp {
 
             // 首先尝试从静态数据文件加载
             try {
-                const response = await fetch('data/blog-data.json');
+                // 使用绝对路径或相对路径，确保在不同环境下都能正确加载
+                const dataUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? 'data/blog-data.json' 
+                    : './data/blog-data.json';
+                
+                const response = await fetch(dataUrl);
                 if (response.ok) {
                     const blogData = await response.json();
                     this.articles = this.filterArticles(blogData.articles);
@@ -155,7 +160,7 @@ class BlogApp {
                     return;
                 }
             } catch (staticError) {
-                console.log('静态数据文件不存在，尝试直接从GitHub API加载...');
+                console.log('静态数据文件不存在，尝试直接从GitHub API加载...', staticError);
             }
 
             // 如果静态文件不存在，回退到直接API调用
@@ -311,14 +316,24 @@ class BlogApp {
         
         // 移除Markdown语法和HTML标签
         let text = content
-            .replace(/!\[.*?\]\(.*?\)/g, '') // 移除图片
+            // 首先移除所有图片相关内容（包括图片语法和可能的图片描述）
+            .replace(/!\[.*?\]\(.*?\)/g, '') // 移除Markdown图片
+            .replace(/<img[^>]*>/gi, '') // 移除HTML图片标签
             .replace(/\[.*?\]\(.*?\)/g, '') // 移除链接
             .replace(/#{1,6}\s/g, '') // 移除标题标记
             .replace(/\*\*(.*?)\*\*/g, '$1') // 移除粗体标记
             .replace(/\*(.*?)\*/g, '$1') // 移除斜体标记
             .replace(/`(.*?)`/g, '$1') // 移除代码标记
-            .replace(/<[^>]*>/g, '') // 移除HTML标签
+            .replace(/```[\s\S]*?```/g, '') // 移除代码块
+            .replace(/<[^>]*>/g, '') // 移除所有HTML标签
             .replace(/\n+/g, ' ') // 替换换行为空格
+            .replace(/\s+/g, ' ') // 合并多个空格
+            .trim();
+
+        // 进一步清理可能的图片相关文本
+        text = text
+            .replace(/^(图片|image|img|screenshot|截图)[:：\s]*/gi, '') // 移除开头的图片标识
+            .replace(/(图片|image|img|screenshot|截图)[:：\s]*$/gi, '') // 移除结尾的图片标识
             .trim();
 
         if (text.length > maxLength) {

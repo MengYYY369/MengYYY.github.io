@@ -188,14 +188,19 @@ class ArticleApp {
         try {
             // 首先尝试从静态数据文件加载
             try {
-                const response = await fetch('data/blog-data.json');
+                // 使用绝对路径或相对路径，确保在不同环境下都能正确加载
+                const dataUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? 'data/blog-data.json' 
+                    : './data/blog-data.json';
+                
+                const response = await fetch(dataUrl);
                 if (response.ok) {
                     const blogData = await response.json();
                     this.allArticles = blogData.articles;
                     return;
                 }
             } catch (staticError) {
-                console.log('静态数据文件不存在，尝试从API加载...');
+                console.log('静态数据文件不存在，尝试从API加载...', staticError);
             }
 
             // 回退到API加载
