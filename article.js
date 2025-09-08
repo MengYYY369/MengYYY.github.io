@@ -326,7 +326,9 @@ class ArticleApp {
         if (!this.article || this.allArticles.length === 0) return;
 
         // 找到当前文章在列表中的位置
-        this.currentIndex = this.allArticles.findIndex(article => article.number === this.article.number);
+        this.currentIndex = this.allArticles.findIndex(article => 
+            (article.number === this.article.number) || (article.id === this.article.id)
+        );
         
         if (this.currentIndex === -1) return;
 
@@ -340,7 +342,8 @@ class ArticleApp {
                 nextButton.style.display = 'inline-flex';
                 nextButton.textContent = '';
                 nextButton.innerHTML = `${nextArticle.title.length > 20 ? nextArticle.title.substring(0, 20) + '...' : nextArticle.title} <i class="fas fa-arrow-right"></i>`;
-                nextButton.href = `article.html?id=${nextArticle.number}`;
+                const nextArticleId = nextArticle.id || nextArticle.number;
+                nextButton.href = `article.html?id=${nextArticleId}`;
                 nextButton.title = nextArticle.title;
             }
         }

@@ -365,8 +365,10 @@ class BlogApp {
     openArticlePage(article) {
         // 将文章数据存储到localStorage
         localStorage.setItem('currentArticle', JSON.stringify(article));
-        // 跳转到文章页面
-        window.location.href = `article.html?id=${article.number}`;
+        // 跳转到文章页面 - 使用id或number字段
+        const articleId = article.id || article.number;
+        console.log('跳转到文章页面，ID:', articleId, '文章:', article.title);
+        window.location.href = `article.html?id=${articleId}`;
     }
 
 
