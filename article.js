@@ -365,9 +365,16 @@ class ArticleApp {
 
     // 设置下一篇文章按钮
     setupNextArticleButton() {
-        console.log('Setting up next article button');
+        console.log('=== Setting up next article button ===');
         console.log('Current article:', this.article ? this.article.title : 'None');
+        console.log('Current article ID:', this.article ? this.article.id : 'None');
         console.log('All articles count:', this.allArticles.length);
+        
+        // 打印所有文章的信息用于调试
+        console.log('All articles list:');
+        this.allArticles.forEach((article, index) => {
+            console.log(`  [${index}] ID: ${article.id}, Title: ${article.title}`);
+        });
         
         if (!this.article || this.allArticles.length === 0) {
             console.log('No article or no articles list, hiding next button');
@@ -376,19 +383,27 @@ class ArticleApp {
 
         // 找到当前文章在列表中的位置
         this.currentIndex = this.allArticles.findIndex(article => {
+            console.log(`Comparing: current article ID ${this.article.id} with list article ID ${article.id}`);
             const match = (article.number === this.article.number) || 
                          (article.id === this.article.id) ||
                          (article.number == this.article.number) || 
                          (article.id == this.article.id);
+            console.log(`Match result: ${match}`);
             return match;
         });
         
-        console.log('Current article index:', this.currentIndex);
+        console.log('Current article index found:', this.currentIndex);
         
         if (this.currentIndex === -1) {
             // 如果找不到当前文章，尝试用第一篇作为当前文章
+            console.log('Article not found in list! This should not happen.');
+            console.log('Current article details:', {
+                id: this.article.id,
+                number: this.article.number,
+                title: this.article.title
+            });
             this.currentIndex = 0;
-            console.log('Article not found in list, using index 0');
+            console.log('Using index 0 as fallback');
         }
 
         const nextButton = document.getElementById('next-article');
@@ -400,11 +415,18 @@ class ArticleApp {
         // 总是显示下一篇按钮（如果有多于1篇文章的话）
         if (this.allArticles.length > 1) {
             // 计算下一篇文章的索引（循环到第一篇）
-            const nextIndex = (this.currentIndex + 1) % this.allArticles.length;
+            let nextIndex = this.currentIndex + 1;
+            if (nextIndex >= this.allArticles.length) {
+                nextIndex = 0; // 循环到第一篇
+            }
+            
             const nextArticle = this.allArticles[nextIndex];
             
-            console.log('Next article index:', nextIndex);
+            console.log('Current index:', this.currentIndex);
+            console.log('Calculated next article index:', nextIndex);
+            console.log('Total articles:', this.allArticles.length);
             console.log('Next article:', nextArticle ? nextArticle.title : 'None');
+            console.log('Next article ID:', nextArticle ? nextArticle.id : 'None');
             
             if (nextArticle) {
                 nextButton.style.display = 'inline-flex';
@@ -414,7 +436,7 @@ class ArticleApp {
                 nextButton.href = nextUrl;
                 
                 // 如果是循环到第一篇，添加特殊提示
-                if (nextIndex === 0 && this.currentIndex !== this.allArticles.length - 1) {
+                if (nextIndex === 0) {
                     nextButton.innerHTML = `Next Article (Back to First) <i class="fas fa-arrow-right"></i>`;
                     nextButton.title = `${nextArticle.title} (循环到第一篇)`;
                 } else {
@@ -426,7 +448,9 @@ class ArticleApp {
                 nextButton.onclick = null;
                 nextButton.removeAttribute('onclick');
                 
-                console.log('Next button configured:', nextUrl);
+                console.log('Next button configured with URL:', nextUrl);
+                console.log('Button href set to:', nextButton.href);
+                console.log('=== End next article button setup ===');
             }
         } else if (this.allArticles.length === 1) {
             // 只有一篇文章时隐藏按钮
