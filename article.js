@@ -384,16 +384,28 @@ class ArticleApp {
         }
 
         // 找到当前文章在列表中的位置
-        this.currentIndex = this.allArticles.findIndex(article => {
-            console.log(`Comparing: current article ID ${this.article.id} (type: ${typeof this.article.id}) with list article ID ${article.id} (type: ${typeof article.id})`);
-            // 使用严格相等比较，确保类型和值都匹配
-            const match = (article.id === this.article.id) || 
-                         (article.number === this.article.number) ||
-                         (String(article.id) === String(this.article.id)) ||
-                         (String(article.number) === String(this.article.number));
-            console.log(`Match result: ${match}`);
+        console.log('=== Starting article matching ===');
+        console.log('Looking for article with ID:', this.article.id);
+        
+        this.currentIndex = this.allArticles.findIndex((article, index) => {
+            console.log(`[${index}] Comparing: current article ID ${this.article.id} (type: ${typeof this.article.id}) with list article ID ${article.id} (type: ${typeof article.id})`);
+            
+            // 只使用ID进行匹配，确保类型转换正确
+            const currentId = Number(this.article.id);
+            const listId = Number(article.id);
+            const match = currentId === listId;
+            
+            console.log(`[${index}] Converted IDs: current=${currentId}, list=${listId}`);
+            console.log(`[${index}] Match result: ${match}`);
+            
+            if (match) {
+                console.log(`✓ Found match at index ${index}!`);
+            }
+            
             return match;
         });
+        
+        console.log('=== Article matching complete ===');
         
         console.log('Current article index found:', this.currentIndex);
         
