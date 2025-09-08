@@ -3,8 +3,6 @@ const CONFIG = {
     // GitHub仓库信息 - 请修改为你的仓库信息
     GITHUB_USERNAME: 'MengYYY369',
     GITHUB_REPO: 'MengYYY.github.io',
-    // 可选：GitHub Personal Access Token (用于提高API限制)
-    GITHUB_TOKEN: '', // 为了安全，移除token，使用公开仓库访问
     // 默认封面图片
     DEFAULT_COVER: 'bg.png',
     // 文章标签过滤 (留空表示获取所有带标签的issues)
@@ -19,17 +17,9 @@ const CONFIG = {
     // 背景轮播间隔时间（毫秒）
     SLIDESHOW_INTERVAL: 8000,
 
-    SITE_TITLE: 'My MODs',                  // 网站标题
-    SITE_DESCRIPTION: 'My MODs Blog',       // 网站描述
-    AUTHOR_NAME: 'MengYYY',
-
-    // 社交媒体链接
-    SOCIAL_LINKS: {
-        discord: 'https://discord.gg/your-discord',
-        youtube: 'https://youtube.com/@your-channel',
-        github: 'https://github.com/your-username',
-        twitter: 'https://twitter.com/your-username'
-    }
+    SITE_TITLE: 'My Blog',                  // Website title
+    SITE_DESCRIPTION: 'Blog',       // Website description
+    AUTHOR_NAME: 'MengYYY'
 };
 
 // DOM元素
@@ -110,13 +100,17 @@ class BlogApp {
         
         // 轮播函数
         const nextSlide = () => {
-            elements.bgSlides[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % elements.bgSlides.length;
-            elements.bgSlides[currentSlide].classList.add('active');
+            if (elements.bgSlides.length > 1) {
+                elements.bgSlides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % elements.bgSlides.length;
+                elements.bgSlides[currentSlide].classList.add('active');
+            }
         };
 
-        // 开始轮播
-        setInterval(nextSlide, CONFIG.SLIDESHOW_INTERVAL);
+        // 开始轮播 - 只有多张图片时才轮播
+        if (elements.bgSlides.length > 1) {
+            setInterval(nextSlide, CONFIG.SLIDESHOW_INTERVAL);
+        }
     }
 
     // 设置回到顶部按钮
@@ -160,25 +154,25 @@ class BlogApp {
                 let dataLoaded = false;
                 for (const dataUrl of possiblePaths) {
                     try {
-                        console.log(`尝试加载数据文件: ${dataUrl}`);
+                        console.log(`Trying to load data file: ${dataUrl}`);
                         const response = await fetch(dataUrl);
                         if (response.ok) {
                             const blogData = await response.json();
-                            console.log(`成功从 ${dataUrl} 加载数据，包含 ${blogData.articles?.length || 0} 篇文章`);
+                            console.log(`Successfully loaded data from ${dataUrl}, containing ${blogData.articles?.length || 0} articles`);
                             this.articles = this.filterArticles(blogData.articles);
                             this.renderArticles();
                             dataLoaded = true;
                             break;
                         }
                     } catch (pathError) {
-                        console.log(`路径 ${dataUrl} 加载失败:`, pathError.message);
+                        console.log(`Path ${dataUrl} loading failed:`, pathError.message);
                     }
                 }
                 
                 if (dataLoaded) return;
                 
             } catch (staticError) {
-                console.log('静态数据文件加载失败，尝试直接从GitHub API加载...', staticError);
+                console.log('Static data file loading failed, trying to load directly from GitHub API...', staticError);
             }
 
             // 如果静态文件不存在，回退到直接API调用
@@ -186,7 +180,7 @@ class BlogApp {
 
         } catch (error) {
             console.error('加载文章失败:', error);
-            this.showError('加载文章失败，请检查网络连接或仓库配置');
+            this.showError('Failed to load articles. Please check your network connection or repository configuration.');
         } finally {
             elements.loading.style.display = 'none';
         }
@@ -196,7 +190,7 @@ class BlogApp {
     async loadArticlesFromAPI() {
         // 检查仓库配置
         if (!CONFIG.GITHUB_USERNAME || !CONFIG.GITHUB_REPO) {
-            throw new Error('请在配置中设置正确的GitHub用户名和仓库名');
+            throw new Error('Please set the correct GitHub username and repository name in the configuration.');
         }
         
         const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues?state=open&sort=created&direction=desc`;
@@ -269,15 +263,14 @@ class BlogApp {
         // 使用预处理的摘要或生成新的
         const excerpt = article.excerpt || this.generateExcerpt(article.body);
         
-        // 格式化日期
-        const date = new Date(article.created_at).toLocaleDateString('zh-CN');
+        // Format date
+        const date = new Date(article.created_at).toLocaleDateString('en-US');
 
         card.innerHTML = `
             <img src="${coverImage}" alt="${article.title}" class="article-image" 
                  onerror="this.src='${CONFIG.DEFAULT_COVER}'">
             <div class="article-content">
                 <h3 class="article-title">${article.title}</h3>
-                <p class="article-excerpt">${excerpt}</p>
                 <div class="article-meta">
                     <span class="article-date">${date}</span>
                     <div class="article-tags">
@@ -330,7 +323,7 @@ class BlogApp {
 
     // 生成文章摘要
     generateExcerpt(content, maxLength = 150) {
-        if (!content) return '暂无内容预览...';
+        if (!content) return 'No content preview available...';
         
         // 移除Markdown语法和HTML标签
         let text = content
@@ -348,17 +341,17 @@ class BlogApp {
             .replace(/\s+/g, ' ') // 合并多个空格
             .trim();
 
-        // 进一步清理可能的图片相关文本
+        // Further clean up possible image-related text
         text = text
-            .replace(/^(图片|image|img|screenshot|截图)[:：\s]*/gi, '') // 移除开头的图片标识
-            .replace(/(图片|image|img|screenshot|截图)[:：\s]*$/gi, '') // 移除结尾的图片标识
+            .replace(/^(图片|image|img|screenshot|截图)[:：\s]*/gi, '') // Remove image identifiers at the beginning
+            .replace(/(图片|image|img|screenshot|截图)[:：\s]*$/gi, '') // Remove image identifiers at the end
             .trim();
 
         if (text.length > maxLength) {
             text = text.substring(0, maxLength) + '...';
         }
 
-        return text || '暂无内容预览...';
+        return text || 'No content preview available...';
     }
 
     // 跳转到文章页面
@@ -367,7 +360,7 @@ class BlogApp {
         localStorage.setItem('currentArticle', JSON.stringify(article));
         // 跳转到文章页面 - 使用id或number字段
         const articleId = article.id || article.number;
-        console.log('跳转到文章页面，ID:', articleId, '文章:', article.title);
+        console.log('Navigating to article page, ID:', articleId, 'Article:', article.title);
         window.location.href = `article.html?id=${articleId}`;
     }
 
@@ -392,7 +385,7 @@ class BlogApp {
         elements.articlesGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #e74c3c;">
                 <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.7;"></i>
-                <p style="font-size: 1.1rem; margin-bottom: 10px;">加载失败</p>
+                <p style="font-size: 1.1rem; margin-bottom: 10px;">Loading Failed</p>
                 <p style="color: #666; font-size: 0.9rem;">${message}</p>
                 <button onclick="location.reload()" style="
                     margin-top: 20px; 
@@ -403,7 +396,7 @@ class BlogApp {
                     border-radius: 6px; 
                     cursor: pointer;
                     font-size: 0.9rem;
-                ">重新加载</button>
+                ">Reload</button>
             </div>
         `;
         elements.articlesGrid.style.display = 'grid';

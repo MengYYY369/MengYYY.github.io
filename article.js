@@ -4,7 +4,6 @@
 const CONFIG = {
     GITHUB_USERNAME: 'MengYYY369',
     GITHUB_REPO: 'MengYYY.github.io',
-    GITHUB_TOKEN: '', // 为了安全，移除token
     // 背景图片轮播
     BACKGROUND_IMAGES: [
         'bg.png',
@@ -95,13 +94,17 @@ class ArticleApp {
         
         // 轮播函数
         const nextSlide = () => {
-            elements.bgSlides[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % elements.bgSlides.length;
-            elements.bgSlides[currentSlide].classList.add('active');
+            if (elements.bgSlides.length > 1) {
+                elements.bgSlides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % elements.bgSlides.length;
+                elements.bgSlides[currentSlide].classList.add('active');
+            }
         };
 
-        // 开始轮播
-        setInterval(nextSlide, CONFIG.SLIDESHOW_INTERVAL);
+        // 开始轮播 - 只有多张图片时才轮播
+        if (elements.bgSlides.length > 1) {
+            setInterval(nextSlide, CONFIG.SLIDESHOW_INTERVAL);
+        }
     }
 
     // 设置回到顶部按钮
@@ -142,15 +145,15 @@ class ArticleApp {
                     this.renderArticle();
                     return;
                 }
-                throw new Error('未找到文章ID');
+                throw new Error('Article ID not found');
             }
 
             // 先加载所有文章
             await this.loadAllArticles();
 
             // 尝试从静态数据中找到文章
-            console.log(`在静态数据中查找文章 ID: ${articleId}`);
-            console.log(`可用文章数量: ${this.allArticles.length}`);
+            console.log(`Looking for article in static data, ID: ${articleId}`);
+            console.log(`Available articles count: ${this.allArticles.length}`);
             
             const articleFromStatic = this.allArticles.find(article => {
                 // 尝试多种匹配方式
@@ -158,14 +161,14 @@ class ArticleApp {
             });
             
             if (articleFromStatic) {
-                console.log(`在静态数据中找到文章: ${articleFromStatic.title}`);
+                console.log(`Found article in static data: ${articleFromStatic.title}`);
                 this.article = articleFromStatic;
                 this.renderArticle();
                 return;
             } else {
-                console.log(`静态数据中未找到文章 ID: ${articleId}`);
+                console.log(`Article not found in static data, ID: ${articleId}`);
                 if (this.allArticles.length > 0) {
-                    console.log('可用文章IDs:', this.allArticles.map(a => `${a.id || a.number}`).join(', '));
+                    console.log('Available article IDs:', this.allArticles.map(a => `${a.id || a.number}`).join(', '));
                 }
             }
 
@@ -173,7 +176,7 @@ class ArticleApp {
             await this.loadArticleFromAPI(articleId);
 
         } catch (error) {
-            console.error('加载文章失败:', error);
+            console.error('Failed to load article:', error);
             this.showError(error.message);
         } finally {
             elements.loading.style.display = 'none';
@@ -182,7 +185,7 @@ class ArticleApp {
 
     // 从GitHub API加载单篇文章
     async loadArticleFromAPI(articleId) {
-        console.log(`尝试从API加载文章 ID: ${articleId}`);
+        console.log(`Trying to load article from API, ID: ${articleId}`);
         const url = `https://api.github.com/repos/${CONFIG.GITHUB_USERNAME}/${CONFIG.GITHUB_REPO}/issues/${articleId}`;
         console.log(`API URL: ${url}`);
         
@@ -194,18 +197,18 @@ class ArticleApp {
         const response = await fetch(url, { headers });
         
         if (!response.ok) {
-            console.error(`API请求失败: ${response.status} ${response.statusText}`);
+            console.error(`API request failed: ${response.status} ${response.statusText}`);
             if (response.status === 404) {
-                throw new Error(`文章不存在: Issue #${articleId} 未找到。可能已被删除或仓库配置错误。`);
+                throw new Error(`Article not found: Issue #${articleId} not found. It may have been deleted or repository configuration is incorrect.`);
             } else if (response.status === 403) {
-                throw new Error(`访问被拒绝: 可能是API限制或仓库私有。状态码: ${response.status}`);
+                throw new Error(`Access denied: Possible API limit or private repository. Status code: ${response.status}`);
             } else {
-                throw new Error(`GitHub API错误: ${response.status} ${response.statusText}`);
+                throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
             }
         }
 
         this.article = await response.json();
-        console.log(`成功加载文章: ${this.article.title}`);
+        console.log(`Successfully loaded article: ${this.article.title}`);
         this.renderArticle();
     }
 
@@ -224,31 +227,31 @@ class ArticleApp {
                 let dataLoaded = false;
                 for (const dataUrl of possiblePaths) {
                     try {
-                        console.log(`尝试加载数据文件: ${dataUrl}`);
+                        console.log(`Trying to load data file: ${dataUrl}`);
                         const response = await fetch(dataUrl);
                         if (response.ok) {
                             const blogData = await response.json();
-                            console.log(`成功从 ${dataUrl} 加载数据，包含 ${blogData.articles?.length || 0} 篇文章`);
+                            console.log(`Successfully loaded data from ${dataUrl}, containing ${blogData.articles?.length || 0} articles`);
                             this.allArticles = blogData.articles;
                             dataLoaded = true;
                             break;
                         }
                     } catch (pathError) {
-                        console.log(`路径 ${dataUrl} 加载失败:`, pathError.message);
+                        console.log(`Path ${dataUrl} loading failed:`, pathError.message);
                     }
                 }
                 
                 if (dataLoaded) return;
                 
             } catch (staticError) {
-                console.log('静态数据文件加载失败，尝试从API加载...', staticError);
+                console.log('Static data file loading failed, trying to load from API...', staticError);
             }
 
             // 回退到API加载
             await this.loadAllArticlesFromAPI();
 
         } catch (error) {
-            console.error('加载文章列表失败:', error);
+            console.error('Failed to load article list:', error);
         }
     }
 
@@ -287,8 +290,8 @@ class ArticleApp {
             return;
         }
 
-        // 更新页面标题
-        document.title = `${this.article.title} - 个人博客`;
+        // Update page title
+        document.title = `${this.article.title} - Personal Blog`;
 
         // 转换Markdown到HTML
         const htmlContent = this.markdownToHtml(this.article.body);
@@ -298,7 +301,7 @@ class ArticleApp {
             <div class="article-meta" style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #e1e5e9;">
                 <span style="color: #666; font-size: 0.95rem;">
                     <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
-                    发布于 ${new Date(this.article.created_at).toLocaleDateString('zh-CN')}
+                    Published on ${new Date(this.article.created_at).toLocaleDateString('en-US')}
                 </span>
                 <div class="article-tags" style="margin-top: 15px;">
                     ${this.article.labels.map(label => 
@@ -341,7 +344,7 @@ class ArticleApp {
             if (nextButton) {
                 nextButton.style.display = 'inline-flex';
                 nextButton.textContent = '';
-                nextButton.innerHTML = `${nextArticle.title.length > 20 ? nextArticle.title.substring(0, 20) + '...' : nextArticle.title} <i class="fas fa-arrow-right"></i>`;
+                nextButton.innerHTML = `Next Article <i class="fas fa-arrow-right"></i>`;
                 const nextArticleId = nextArticle.id || nextArticle.number;
                 nextButton.href = `article.html?id=${nextArticleId}`;
                 nextButton.title = nextArticle.title;
@@ -456,8 +459,8 @@ class ArticleApp {
         document.body.style.overflow = 'auto';
     }
 
-    // 显示错误信息
-    showError(message = '文章加载失败') {
+    // Show error message
+    showError(message = 'Failed to load article') {
         elements.articleError.style.display = 'block';
         elements.articleContent.style.display = 'none';
         
@@ -481,8 +484,8 @@ class ArticleApp {
             errorMessage.textContent = message;
         }
         
-        // 在控制台输出详细信息
-        console.error('文章加载错误详情:', {
+        // Output detailed information to console
+        console.error('Article loading error details:', {
             message: message,
             url: window.location.href,
             articleId: new URLSearchParams(window.location.search).get('id'),
