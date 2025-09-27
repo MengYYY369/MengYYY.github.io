@@ -621,9 +621,10 @@ class ConfigEditorApp {
             }
         });
 
-        // 提取 DamageSystem 中的 hitpoints（改进版）
+        // 提取 DamageSystem 中的 hitpoints 和 damage 参数
         const damageSystemMatch = this.extractNestedClass(classContent, 'DamageSystem');
         if (damageSystemMatch) {
+            // 提取 hitpoints
             const globalHealthMatch = this.extractNestedClass(damageSystemMatch, 'GlobalHealth');
             if (globalHealthMatch) {
                 const healthClassMatch = this.extractNestedClass(globalHealthMatch, 'Health');
@@ -637,6 +638,33 @@ class ConfigEditorApp {
                         };
                     }
                 }
+            }
+            
+            // 提取 GlobalArmor 中的 damage 参数
+            const globalArmorMatch = this.extractNestedClass(damageSystemMatch, 'GlobalArmor');
+            if (globalArmorMatch) {
+                const damageClasses = ['Projectile', 'Melee', 'Infected', 'FragGrenade'];
+                const damageTypes = ['Health', 'Blood', 'Shock'];
+                
+                damageClasses.forEach(damageClass => {
+                    const classMatch = this.extractNestedClass(globalArmorMatch, damageClass);
+                    if (classMatch) {
+                        damageTypes.forEach(damageType => {
+                            const typeMatch = this.extractNestedClass(classMatch, damageType);
+                            if (typeMatch) {
+                                const damage = this.extractParameterValue(typeMatch, 'damage');
+                                if (damage !== null) {
+                                    const paramKey = `${damageClass}_${damageType}_damage`;
+                                    parameters[paramKey] = {
+                                        value: damage,
+                                        type: 'float',
+                                        description: `${damageClass} damage percentage for ${damageType} (0-1 range, e.g., 0.15 = 15% damage)`
+                                    };
+                                }
+                            }
+                        });
+                    }
+                });
             }
         }
 
@@ -769,18 +797,13 @@ class ConfigEditorApp {
         
         console.log(`Array ${paramName} not found`);
         
-        // 匹配数值（包括小数和负数）
-        const numberMatch = content.match(new RegExp(`${paramName}\\s*=\\s*([\\d.-]+)`, 'i'));
+        // 匹配数值（包括小数、负数和零）- 改进版
+        const numberMatch = content.match(new RegExp(`${paramName}\\s*=\\s*([\\d.-]+)(?=\\s*;)`, 'i'));
         if (numberMatch) {
-            console.log(`Found number ${paramName}:`, numberMatch[1]);
-            return parseFloat(numberMatch[1]);
-        }
-
-        // 匹配整数值
-        const intMatch = content.match(new RegExp(`${paramName}\\s*=\\s*(\\d+)`, 'i'));
-        if (intMatch) {
-            console.log(`Found int ${paramName}:`, intMatch[1]);
-            return parseInt(intMatch[1]);
+            const numValue = parseFloat(numberMatch[1]);
+            console.log(`Found number ${paramName}:`, numberMatch[1], '-> parsed as:', numValue);
+            // 确保返回正确的数值，包括 0
+            return isNaN(numValue) ? null : numValue;
         }
 
         console.log(`Parameter ${paramName} not found with any pattern`);
@@ -821,7 +844,7 @@ class ConfigEditorApp {
             Object.entries(classData.parameters).forEach(([paramName, paramData]) => {
                 const paramDiv = this.createParameterElement(paramName, paramData);
                 
-                if (paramName === 'hitpoints') {
+                if (paramName === 'hitpoints' || paramName.includes('_damage')) {
                     damageGroup.appendChild(paramDiv);
                     hasDamageParams = true;
                 } else {
@@ -891,7 +914,7 @@ class ConfigEditorApp {
             // 普通输入框
             const displayValue = Array.isArray(paramData.value) 
                 ? paramData.value.join(', ') 
-                : (paramData.value || (paramData.type === 'string' ? '' : '1'));
+                : (paramData.value !== null && paramData.value !== undefined ? paramData.value : (paramData.type === 'string' ? '' : '1'));
             const inputType = paramData.type === 'int' || paramData.type === 'float' ? 'number' : 'text';
             const step = paramData.type === 'float' ? '0.01' : '1';
             const min = paramData.type === 'int' || paramData.type === 'float' ? '0' : '';
@@ -905,6 +928,9 @@ class ConfigEditorApp {
                 } else if (paramName === 'hitpoints') {
                     // hitpoints 必须大于0
                     inputRestrictions = `min="0.01" step="${step}" oninput="validateHitpointsInput(this)"`;
+                } else if (paramName.includes('_damage')) {
+                    // damage 参数必须大于等于0
+                    inputRestrictions = `min="0" step="${step}" oninput="validateDamageInput(this)"`;
                 } else {
                     inputRestrictions = `min="${min}" ${paramData.type === 'float' ? `step="${step}"` : ''} oninput="validateNumberInput(this)"`;
                 }
@@ -1002,9 +1028,16 @@ class ConfigEditorApp {
                 const paramType = classData.parameters[paramName].type;
                 let newValue;
                 if (paramType === 'float') {
-                    newValue = parseFloat(value) || 0;
+                    newValue = parseFloat(value);
+                    // 特殊处理：damage 参数允许为 0，其他参数空值时默认为 0
+                    if (isNaN(newValue)) {
+                        newValue = 0;
+                    }
                 } else if (paramType === 'int') {
-                    newValue = parseInt(value) || 0;
+                    newValue = parseInt(value);
+                    if (isNaN(newValue)) {
+                        newValue = 0;
+                    }
                 } else {
                     newValue = value;
                 }
@@ -1084,6 +1117,11 @@ class ConfigEditorApp {
                     // 特殊处理 hitpoints（在特定类的 DamageSystem 中）
                     content = this.updateHitpointsInClass(content, paramData.value, classData.name);
                     console.log(`Updated hitpoints to ${paramData.value} in class ${classData.name}`);
+                    
+                } else if (paramName.includes('_damage')) {
+                    // 特殊处理 damage 参数（在 DamageSystem 的 GlobalArmor 中）
+                    content = this.updateDamageParameterInClass(content, paramName, paramData.value, classData.name);
+                    console.log(`Updated ${paramName} to ${paramData.value} in class ${classData.name}`);
                     
                 } else if (paramData.type === 'string') {
                     // 字符串参数
@@ -1165,6 +1203,72 @@ class ConfigEditorApp {
             console.log(`Successfully updated ${paramName} in class ${className}`);
         } else {
             console.log(`${paramName} not found in class ${className}`);
+        }
+        
+        return content;
+    }
+
+    // 更新特定类中的 damage 参数
+    updateDamageParameterInClass(content, paramName, newValue, className) {
+        console.log(`Updating ${paramName} to ${newValue} in class ${className}`);
+        
+        // 解析参数名：Projectile_Health_damage -> damageClass: Projectile, damageType: Health
+        const parts = paramName.split('_');
+        if (parts.length !== 3 || parts[2] !== 'damage') {
+            console.log(`Invalid damage parameter name: ${paramName}`);
+            return content;
+        }
+        
+        const damageClass = parts[0]; // Projectile, Melee, Infected, FragGrenade
+        const damageType = parts[1];  // Health, Blood, Shock
+        
+        // 查找类的开始位置
+        const classPattern = new RegExp(`class\\s+${className}\\s*:\\s*[^{]+\\{`, 'i');
+        const classMatch = content.match(classPattern);
+        
+        if (!classMatch) {
+            console.log(`Class ${className} not found`);
+            return content;
+        }
+        
+        const classStartIndex = content.indexOf(classMatch[0]);
+        
+        // 找到该类的结束位置
+        let braceCount = 1;
+        let classEndIndex = classStartIndex + classMatch[0].length;
+        
+        while (classEndIndex < content.length && braceCount > 0) {
+            if (content[classEndIndex] === '{') {
+                braceCount++;
+            } else if (content[classEndIndex] === '}') {
+                braceCount--;
+            }
+            classEndIndex++;
+        }
+        
+        // 在该类的范围内查找 DamageSystem -> GlobalArmor -> damageClass -> damageType -> damage
+        const classContent = content.substring(classStartIndex, classEndIndex);
+        
+        // 使用更简单的方法：直接在类内容中查找并替换特定的 damage 参数
+        // 创建一个更具体的模式来匹配嵌套路径中的 damage 参数
+        const specificDamagePattern = new RegExp(
+            `(class\\s+${damageClass}[\\s\\S]*?class\\s+${damageType}[\\s\\S]*?damage\\s*=\\s*)[\\d.]+`,
+            'i'
+        );
+        
+        console.log(`Looking for pattern in class ${className}: ${damageClass} -> ${damageType} -> damage`);
+        
+        if (specificDamagePattern.test(classContent)) {
+            const updatedClassContent = classContent.replace(specificDamagePattern, `$1${newValue}`);
+            
+            // 替换原始内容中的类部分
+            const before = content.substring(0, classStartIndex);
+            const after = content.substring(classEndIndex);
+            content = before + updatedClassContent + after;
+            console.log(`Successfully updated ${paramName} in class ${className}`);
+        } else {
+            console.log(`Pattern not found for ${paramName} in class ${className}`);
+            console.log(`Class content preview:`, classContent.substring(0, 500));
         }
         
         return content;
@@ -1627,6 +1731,39 @@ window.validateSizeInput = function(input) {
     }
     
     // 移除了最大值限制 - 允许任意大的数值
+};
+
+// 全局函数：验证 damage 输入（必须大于等于0）
+window.validateDamageInput = function(input) {
+    const value = input.value;
+    
+    // 允许数字和小数点
+    const cleanValue = value.replace(/[^\d.]/g, '');
+    
+    // 确保只有一个小数点
+    let finalValue = cleanValue;
+    const dotCount = (cleanValue.match(/\./g) || []).length;
+    if (dotCount > 1) {
+        const firstDotIndex = cleanValue.indexOf('.');
+        finalValue = cleanValue.substring(0, firstDotIndex + 1) + cleanValue.substring(firstDotIndex + 1).replace(/\./g, '');
+    }
+    
+    if (finalValue !== value) {
+        input.value = finalValue;
+        showInputWarning(input, 'Non-negative numbers only');
+    }
+    
+    // 检查是否为空或小于0
+    const numValue = parseFloat(input.value);
+    if (input.value === '' || input.value === '.' || isNaN(numValue)) {
+        input.value = '0';
+        if (value !== '' && value !== '0') {
+            showInputWarning(input, 'Please enter a valid number');
+        }
+    } else if (numValue < 0) {
+        input.value = '0';
+        showInputWarning(input, 'Damage value must be 0 or greater');
+    }
 };
 
 // 全局函数：验证 hitpoints 输入（必须大于0）
