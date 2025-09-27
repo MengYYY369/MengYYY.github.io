@@ -1,0 +1,182 @@
+/* Tools 页面专用样式 */
+
+/* 工具页面头部 */
+.tools-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px 20px;
+}
+
+.tools-header h1 {
+    font-size: 3rem;
+    margin: 0 0 20px 0;
+    color: var(--text-color);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tools-header p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* 工具网格 */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 20px;
+}
+
+/* 工具卡片 */
+.tool-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.tool-card:not(.coming-soon):hover {
+    border-color: var(--accent-color);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(52, 152, 219, 0.3);
+}
+
+.tool-card.coming-soon {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.tool-card.coming-soon:hover {
+    transform: none;
+    border-color: var(--border-color);
+}
+
+/* 工具图标 */
+.tool-icon {
+    font-size: 4rem;
+    color: var(--accent-color);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.tool-card:not(.coming-soon):hover .tool-icon {
+    transform: scale(1.1);
+}
+
+.tool-card.coming-soon .tool-icon {
+    color: var(--text-secondary);
+}
+
+/* 工具标题和描述 */
+.tool-card h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
+
+.tool-card p {
+    margin: 0 0 20px 0;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* 功能标签 */
+.tool-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.feature-tag {
+    background: var(--accent-color);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* 即将推出徽章 */
+.coming-soon-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(45deg, #ff6b6b, #ffa500);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transform: rotate(15deg);
+}
+
+/* 背景图片适配 */
+.bg-slide {
+    background-image: url('../bg.png');
+}
+
+.bg-slide:nth-child(2) {
+    background-image: url('../bg2.png');
+}
+
+.bg-slide:nth-child(3) {
+    background-image: url('../bg3.png');
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .tools-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .tools-header p {
+        font-size: 1rem;
+    }
+    
+    .tools-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 10px;
+    }
+    
+    .tool-card {
+        padding: 30px 20px;
+    }
+    
+    .tool-icon {
+        font-size: 3rem;
+    }
+    
+    .tool-card h3 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tools-header {
+        padding: 20px 10px;
+        margin-bottom: 30px;
+    }
+    
+    .tools-header h1 {
+        font-size: 2rem;
+    }
+    
+    .tool-card {
+        padding: 25px 15px;
+    }
+    
+    .feature-tag {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+}
