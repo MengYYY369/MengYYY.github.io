@@ -18,5 +18,8 @@
     "quickfix.biome": "always",
     "source.organizeImports.biome": "always"
   },
-  "frontMatter.dashboard.openOnStart": false
+  "[markdown]": {
+  },
+  "frontMatter.dashboard.openOnStart": true,
+  "frontMatter.panel.openOnSupportedFile": true
 }
