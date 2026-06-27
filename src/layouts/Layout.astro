@@ -167,10 +167,10 @@ const bannerOffset =
 }}>
 @tailwind components;
 @layer components {
-	.enable-banner.is-home .banner-carousel {
+	.enable-banner.is-home #banner-wrapper {
 		@apply h-[var(--banner-height-home)] translate-y-[var(--banner-height-extend)]
 	}
-	.enable-banner .banner-carousel {
+	.enable-banner #banner-wrapper {
 		@apply h-[var(--banner-height-home)]
 	}
 
@@ -408,7 +408,6 @@ function showBanner() {
 	}
 
 	function startAutoPlay() {
-		clearInterval(timer);
 		timer = setInterval(nextSlide, interval);
 	}
 
