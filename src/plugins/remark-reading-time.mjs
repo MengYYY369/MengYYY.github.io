@@ -6,11 +6,6 @@ export function remarkReadingTime() {
 	return (tree, { data }) => {
 		const textOnPage = toString(tree);
 		const readingTime = getReadingTime(textOnPage);
-		data.astro.frontmatter.minutes = Math.max(
-			1,
-			Math.round(readingTime.minutes),
-		);
-		data.astro.frontmatter.words = readingTime.words;
 
 		let imageCount = 0;
 		const visit = (node) => {
@@ -22,6 +17,12 @@ export function remarkReadingTime() {
 			}
 		};
 		visit(tree);
+
+		const imageTimeMinutes = (imageCount * 10) / 60;
+		const totalMinutes = readingTime.minutes + imageTimeMinutes;
+
+		data.astro.frontmatter.minutes = Math.max(1, Math.round(totalMinutes));
+		data.astro.frontmatter.words = readingTime.words;
 		data.astro.frontmatter.imageCount = imageCount;
 	};
 }

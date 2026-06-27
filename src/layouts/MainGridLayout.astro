@@ -14,12 +14,15 @@ import {
 	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import Layout from "./Layout.astro";
+import { pathsEqual, url } from "../utils/url-utils";
 
 // Import banner images via Vite glob - resolves paths correctly in both dev and prod
 const bannerModules = import.meta.glob('../assets/images/banner_*.{jpg,jpeg,png}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const bannerSrcs = Object.keys(bannerModules)
 	.sort()
 	.map(key => bannerModules[key]);
+
+const isHomePage = pathsEqual(Astro.url.pathname, url("/"));
 
 interface Props {
 	title?: string;
@@ -52,7 +55,7 @@ const mainPanelTop = siteConfig.banner.enable
 <!-- Navbar -->
 <slot slot="head" name="head"></slot>
 <div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
-    <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all">
+    <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all navbar-hidden">
         <Navbar></Navbar>
     </div>
 </div>
@@ -69,7 +72,7 @@ const mainPanelTop = siteConfig.banner.enable
 			))}
 		</div>
 	</div>
-	{bannerSrcs.length > 1 && <div class="banner-dots absolute left-1/2 -translate-x-1/2 z-[45] flex gap-2 pointer-events-auto" style={`top: calc(${BANNER_HEIGHT_HOME}vh - ${siteConfig.banner.dotsBottom || '2rem'} - 10px)`}>
+	{bannerSrcs.length > 1 && <div class="banner-dots absolute left-1/2 -translate-x-1/2 z-[45] flex gap-2 pointer-events-auto" style={`top: calc(${BANNER_HEIGHT_HOME}vh - ${isHomePage ? 0 : BANNER_HEIGHT_EXTEND}vh - ${siteConfig.banner.dotsBottom || '2rem'} - 10px)`}>
 		{bannerSrcs.map((_, i) => (
 			<button class:list={["banner-dot w-2.5 h-2.5 rounded-full transition-colors duration-300 cursor-pointer", i === 0 ? "bg-white" : "bg-white/40"]} aria-label={`Go to slide ${i + 1}`}></button>
 		))}

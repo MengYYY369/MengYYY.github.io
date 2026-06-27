@@ -64,21 +64,21 @@ const { remarkPluginFrontmatter } = await entry.render();
             { description || remarkPluginFrontmatter.excerpt }
         </div>
 
-        <!-- word count and read time  -->
+        <!-- word count, image count and read time  -->
         <div class="text-sm text-black/30 dark:text-white/30 flex gap-4 transition">
             <div>
-                {remarkPluginFrontmatter.words} {" " + i18n(remarkPluginFrontmatter.words === 1 ? I18nKey.wordCount : I18nKey.wordsCount)}
-            </div>
-            <div>|</div>
-            <div>
-                {remarkPluginFrontmatter.minutes} {" " + i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount)}
+                {remarkPluginFrontmatter.words} <span data-i18n="wordsCount">{" " + i18n(I18nKey.wordsCount)}</span>
             </div>
             {remarkPluginFrontmatter.imageCount > 0 && <>
                 <div>|</div>
                 <div>
-                    {remarkPluginFrontmatter.imageCount} {" " + i18n(remarkPluginFrontmatter.imageCount === 1 ? I18nKey.imageCount : I18nKey.imagesCount)}
+                    {remarkPluginFrontmatter.imageCount} <span data-i18n="imagesCount">{" " + i18n(I18nKey.imagesCount)}</span>
                 </div>
             </>}
+            <div>|</div>
+            <div>
+                {remarkPluginFrontmatter.minutes} <span data-i18n="minutesCount">{" " + i18n(I18nKey.minutesCount)}</span>
+            </div>
         </div>
 
     </div>
