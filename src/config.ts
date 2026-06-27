@@ -8,8 +8,8 @@ import type {
 import { LinkPreset } from "./types/config";
 
 export const siteConfig: SiteConfig = {
-	title: "My Mods",
-	subtitle: "",
+	title: "My ",
+	subtitle: " Mods",
 	lang: "en",
 	themeColor: {
 		hue: 200,
