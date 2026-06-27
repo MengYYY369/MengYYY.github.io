@@ -39,11 +39,13 @@ const isHomePage = pathsEqual(Astro.url.pathname, url("/"));
 // why doing this in Layout instead of GlobalStyles: https://github.com/withastro/astro/issues/6728#issuecomment-1502203757
 const configHue = siteConfig.themeColor.hue;
 if (!banner || typeof banner !== "string" || banner.trim() === "") {
-	banner = siteConfig.banner.src;
+	const src = siteConfig.banner.src;
+	banner = Array.isArray(src) ? src[0] : src;
 }
 
 // TODO don't use post cover as banner for now
-banner = siteConfig.banner.src;
+const bannerSrc = siteConfig.banner.src;
+banner = Array.isArray(bannerSrc) ? bannerSrc[0] : bannerSrc;
 
 const enableBanner = siteConfig.banner.enable;
 
@@ -173,10 +175,10 @@ const bannerOffset =
 		@apply h-[var(--banner-height-home)]
 	}
 
-	.enable-banner.is-home #banner {
+	.enable-banner.is-home .banner-slide {
 		@apply h-[var(--banner-height-home)] translate-y-0
 	}
-	.enable-banner #banner {
+	.enable-banner .banner-slide {
 		@apply h-[var(--banner-height-home)] translate-y-[var(--bannerOffset)]
 	}
 	.enable-banner.is-home #main-grid {
@@ -354,13 +356,62 @@ function initCustomScrollbar() {
 function showBanner() {
 	if (!siteConfig.banner.enable) return;
 
-	const banner = document.getElementById('banner');
-	if (!banner) {
-		console.error('Banner element not found');
-		return;
+	const slides = document.querySelectorAll('.banner-slide');
+	if (slides.length === 0) return;
+
+	// Fade in first slide
+	slides[0].classList.remove('opacity-0');
+
+	// If only one slide, no carousel needed
+	if (slides.length <= 1) return;
+
+	// Carousel logic
+	let currentSlide = 0;
+	const dots = document.querySelectorAll('.banner-dot');
+	const interval = 5000;
+	let timer: ReturnType<typeof setInterval>;
+
+	function goToSlide(index: number) {
+		slides[currentSlide].classList.add('opacity-0');
+		if (dots[currentSlide]) dots[currentSlide].classList.remove('bg-white');
+		if (dots[currentSlide]) dots[currentSlide].classList.add('bg-white/40');
+
+		currentSlide = index;
+
+		slides[currentSlide].classList.remove('opacity-0');
+		if (dots[currentSlide]) dots[currentSlide].classList.remove('bg-white/40');
+		if (dots[currentSlide]) dots[currentSlide].classList.add('bg-white');
 	}
 
-	banner.classList.remove('opacity-0', 'scale-105');
+	function nextSlide() {
+		goToSlide((currentSlide + 1) % slides.length);
+	}
+
+	function startAutoPlay() {
+		timer = setInterval(nextSlide, interval);
+	}
+
+	function stopAutoPlay() {
+		clearInterval(timer);
+	}
+
+	startAutoPlay();
+
+	// Dot click handlers
+	dots.forEach((dot, i) => {
+		dot.addEventListener('click', () => {
+			stopAutoPlay();
+			goToSlide(i);
+			startAutoPlay();
+		});
+	});
+
+	// Pause on hover
+	const wrapper = document.getElementById('banner-wrapper');
+	if (wrapper) {
+		wrapper.addEventListener('mouseenter', stopAutoPlay);
+		wrapper.addEventListener('mouseleave', startAutoPlay);
+	}
 }
 
 function init() {
