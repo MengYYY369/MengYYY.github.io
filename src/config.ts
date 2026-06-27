@@ -17,7 +17,17 @@ export const siteConfig: SiteConfig = {
 	},
 	banner: {
 		enable: true,
-		src: ["assets/images/demo-banner.png"],
+		src: [
+			"assets/images/banner_1.jpg",
+			"assets/images/banner_2.jpg",
+			"assets/images/banner_3.jpg",
+			"assets/images/banner_4.jpg",
+			"assets/images/banner_5.jpg",
+			"assets/images/banner_6.png",
+			"assets/images/banner_7.png",
+			"assets/images/banner_8.png",
+			"assets/images/banner_9.png",
+		],
 		position: "center",
 		credit: {
 			enable: false,
@@ -45,7 +55,7 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "assets/images/demo-avatar.png",
+	avatar: "assets/images/avatar.jpg",
 	name: "MengYYY",
 	bio: "DayZ Mod Author",
 	links: [
