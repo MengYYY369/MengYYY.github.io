@@ -65,7 +65,7 @@ const mainPanelTop = siteConfig.banner.enable
 					<img src={src} alt={`Banner ${i + 1}`} class="w-full h-full object-cover" style={`object-position: ${siteConfig.banner.position || 'center'}`} />
 				</div>
 			))}
-			{bannerSrcs.length > 1 && <div class="banner-dots absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+			{bannerSrcs.length > 1 && <div class="banner-dots absolute left-1/2 -translate-x-1/2 z-20 flex gap-2" style={`bottom: ${siteConfig.banner.dotsBottom || '2rem'}`}>
 				{bannerSrcs.map((_, i) => (
 					<button class:list={["banner-dot w-2.5 h-2.5 rounded-full transition-colors duration-300 cursor-pointer", i === 0 ? "bg-white" : "bg-white/40"]} aria-label={`Go to slide ${i + 1}`}></button>
 				))}
