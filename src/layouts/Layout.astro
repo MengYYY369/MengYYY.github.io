@@ -168,17 +168,17 @@ const bannerOffset =
 @tailwind components;
 @layer components {
 	.enable-banner.is-home #banner-wrapper {
-		@apply h-[var(--banner-height-home)] translate-y-[var(--banner-height-extend)]
-	}
-	.enable-banner #banner-wrapper {
 		@apply h-[var(--banner-height-home)]
+	}
+	.enable-banner:not(.is-home) #banner-wrapper {
+		@apply h-[var(--banner-height)]
 	}
 
 	.enable-banner .banner-item {
 		@apply h-[var(--banner-height-home)]
 	}
 	.enable-banner.is-home #main-grid {
-		@apply translate-y-[var(--banner-height-extend)];
+		/* transform removed - no longer needed without banner translate-y */
 	}
 	.enable-banner #top-row {
 		@apply h-[calc(var(--banner-height-home)_-_4.5rem)] transition-all duration-300
@@ -408,6 +408,7 @@ function showBanner() {
 	}
 
 	function startAutoPlay() {
+		clearInterval(timer);
 		timer = setInterval(nextSlide, interval);
 	}
 
@@ -426,11 +427,11 @@ function showBanner() {
 		});
 	});
 
-	// Pause on hover
+	// Pause on hover (use mouseover/mouseout since container has pointer-events-none but children have pointer-events-auto)
 	const dotsWrapper = document.querySelector('.banner-dots');
 	if (dotsWrapper) {
-		dotsWrapper.addEventListener('mouseenter', stopAutoPlay);
-		dotsWrapper.addEventListener('mouseleave', startAutoPlay);
+		dotsWrapper.addEventListener('mouseover', stopAutoPlay);
+		dotsWrapper.addEventListener('mouseout', startAutoPlay);
 	}
 }
 
