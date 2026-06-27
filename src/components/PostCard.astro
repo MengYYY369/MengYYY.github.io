@@ -73,6 +73,12 @@ const { remarkPluginFrontmatter } = await entry.render();
             <div>
                 {remarkPluginFrontmatter.minutes} {" " + i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount)}
             </div>
+            {remarkPluginFrontmatter.imageCount > 0 && <>
+                <div>|</div>
+                <div>
+                    {remarkPluginFrontmatter.imageCount} {" " + i18n(remarkPluginFrontmatter.imageCount === 1 ? I18nKey.imageCount : I18nKey.imagesCount)}
+                </div>
+            </>}
         </div>
 
     </div>

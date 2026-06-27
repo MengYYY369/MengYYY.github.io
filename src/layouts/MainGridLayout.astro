@@ -5,7 +5,6 @@ import Navbar from "@components/Navbar.astro";
 import SideBar from "@components/widget/SideBar.astro";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
-import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TOC from "../components/widget/TOC.astro";
 import { siteConfig } from "../config";
 import {
@@ -14,6 +13,12 @@ import {
 	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import Layout from "./Layout.astro";
+
+// Import banner images via Vite glob - resolves paths correctly in both dev and prod
+const bannerModules = import.meta.glob('../assets/images/banner_*.{jpg,jpeg,png}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const bannerSrcs = Object.keys(bannerModules)
+	.sort()
+	.map(key => bannerModules[key]);
 
 interface Props {
 	title?: string;
@@ -52,12 +57,24 @@ const mainPanelTop = siteConfig.banner.enable
 </div>
 
 <!-- Banner -->
-{siteConfig.banner.enable && <div id="banner-wrapper" class={`absolute z-10 w-full transition duration-700 overflow-hidden`} style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
-    <ImageWrapper id="banner" alt="Banner image of the blog" class:list={["object-cover h-full transition duration-700 opacity-0 scale-105"]}
-                  src={siteConfig.banner.src} position={siteConfig.banner.position}
-    >
-    </ImageWrapper>
-</div>}
+{siteConfig.banner.enable && bannerSrcs.length > 0 && (
+	<>
+	<div id="banner-wrapper" class="absolute w-full transition duration-700 overflow-hidden pointer-events-none" style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
+		<div class="banner-carousel relative w-full h-full">
+			{bannerSrcs.map((src, i) => (
+				<div class:list={["banner-item absolute inset-0 overflow-hidden transition-opacity duration-700", { "opacity-0": i > 0 }]}>
+					<img src={src} alt={`Banner ${i + 1}`} class="w-full h-full object-cover" style={`object-position: ${siteConfig.banner.position || 'center'}`} />
+				</div>
+			))}
+		</div>
+	</div>
+	{bannerSrcs.length > 1 && <div class="banner-dots absolute z-40 left-0 right-0 flex justify-center gap-2 pointer-events-none" style={`bottom: calc(${100 - BANNER_HEIGHT}vh + ${siteConfig.banner.dotsBottom || '2rem'})`}>
+		{bannerSrcs.map((_, i) => (
+			<button class:list={["banner-dot pointer-events-auto w-2.5 h-2.5 rounded-full transition-colors duration-300 cursor-pointer", i === 0 ? "bg-white" : "bg-white/40"]} aria-label={`Go to slide ${i + 1}`}></button>
+		))}
+	</div>}
+	</>
+)}
 
 <!-- Main content -->
 <div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>

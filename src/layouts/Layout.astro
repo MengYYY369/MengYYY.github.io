@@ -38,12 +38,13 @@ const isHomePage = pathsEqual(Astro.url.pathname, url("/"));
 // defines global css variables
 // why doing this in Layout instead of GlobalStyles: https://github.com/withastro/astro/issues/6728#issuecomment-1502203757
 const configHue = siteConfig.themeColor.hue;
+const bannerSrc = siteConfig.banner.src;
+const firstBannerSrc = Array.isArray(bannerSrc) ? bannerSrc[0] : bannerSrc;
 if (!banner || typeof banner !== "string" || banner.trim() === "") {
-	banner = siteConfig.banner.src;
+	banner = firstBannerSrc;
 }
-
 // TODO don't use post cover as banner for now
-banner = siteConfig.banner.src;
+banner = firstBannerSrc;
 
 const enableBanner = siteConfig.banner.enable;
 
@@ -167,20 +168,17 @@ const bannerOffset =
 @tailwind components;
 @layer components {
 	.enable-banner.is-home #banner-wrapper {
-		@apply h-[var(--banner-height-home)] translate-y-[var(--banner-height-extend)]
-	}
-	.enable-banner #banner-wrapper {
 		@apply h-[var(--banner-height-home)]
 	}
-
-	.enable-banner.is-home #banner {
-		@apply h-[var(--banner-height-home)] translate-y-0
+	.enable-banner:not(.is-home) #banner-wrapper {
+		@apply h-[var(--banner-height)]
 	}
-	.enable-banner #banner {
-		@apply h-[var(--banner-height-home)] translate-y-[var(--bannerOffset)]
+
+	.enable-banner .banner-item {
+		@apply h-[var(--banner-height-home)]
 	}
 	.enable-banner.is-home #main-grid {
-		@apply translate-y-[var(--banner-height-extend)];
+		/* transform removed - no longer needed without banner translate-y */
 	}
 	.enable-banner #top-row {
 		@apply h-[calc(var(--banner-height-home)_-_4.5rem)] transition-all duration-300
@@ -354,13 +352,87 @@ function initCustomScrollbar() {
 function showBanner() {
 	if (!siteConfig.banner.enable) return;
 
-	const banner = document.getElementById('banner');
-	if (!banner) {
-		console.error('Banner element not found');
-		return;
+	const slides = document.querySelectorAll('.banner-item');
+	if (slides.length === 0) return;
+
+	// Fisher-Yates shuffle for random order on each page load
+	const slideArray = Array.from(slides);
+	const parent = slideArray[0].parentNode;
+	if (parent) {
+		for (let i = slideArray.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[slideArray[i], slideArray[j]] = [slideArray[j], slideArray[i]];
+		}
+		slideArray.forEach(s => parent.appendChild(s));
 	}
 
-	banner.classList.remove('opacity-0', 'scale-105');
+	// Shuffle dots to match
+	const dots = document.querySelectorAll('.banner-dot');
+	const dotArray = Array.from(dots);
+	const dotsContainer = document.querySelector('.banner-dots');
+	if (dotsContainer && dotArray.length > 0) {
+		for (let i = dotArray.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[dotArray[i], dotArray[j]] = [dotArray[j], dotArray[i]];
+		}
+		dotArray.forEach(d => dotsContainer.appendChild(d));
+		dotArray.forEach(d => { d.classList.remove('bg-white'); d.classList.add('bg-white/40'); });
+	}
+
+	// Fade in first slide (use shuffled array)
+	slideArray[0].classList.remove('opacity-0');
+	if (dotArray[0]) { dotArray[0].classList.remove('bg-white/40'); dotArray[0].classList.add('bg-white'); }
+
+	// If only one slide, no carousel needed
+	if (slideArray.length <= 1) return;
+
+	// Carousel logic - use slideArray (shuffled order) for all operations
+	let currentSlide = 0;
+	const interval = 5000;
+	let timer: ReturnType<typeof setInterval>;
+
+	function goToSlide(index: number) {
+		slideArray[currentSlide].classList.add('opacity-0');
+		if (dotArray[currentSlide]) dotArray[currentSlide].classList.remove('bg-white');
+		if (dotArray[currentSlide]) dotArray[currentSlide].classList.add('bg-white/40');
+
+		currentSlide = index;
+
+		slideArray[currentSlide].classList.remove('opacity-0');
+		if (dotArray[currentSlide]) dotArray[currentSlide].classList.remove('bg-white/40');
+		if (dotArray[currentSlide]) dotArray[currentSlide].classList.add('bg-white');
+	}
+
+	function nextSlide() {
+		goToSlide((currentSlide + 1) % slideArray.length);
+	}
+
+	function startAutoPlay() {
+		clearInterval(timer);
+		timer = setInterval(nextSlide, interval);
+	}
+
+	function stopAutoPlay() {
+		clearInterval(timer);
+	}
+
+	startAutoPlay();
+
+	// Dot click handlers
+	dotArray.forEach((dot, i) => {
+		dot.addEventListener('click', () => {
+			stopAutoPlay();
+			goToSlide(i);
+			startAutoPlay();
+		});
+	});
+
+	// Pause on hover (use mouseover/mouseout since container has pointer-events-none but children have pointer-events-auto)
+	const dotsWrapper = document.querySelector('.banner-dots');
+	if (dotsWrapper) {
+		dotsWrapper.addEventListener('mouseover', stopAutoPlay);
+		dotsWrapper.addEventListener('mouseout', startAutoPlay);
+	}
 }
 
 function init() {

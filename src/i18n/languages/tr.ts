@@ -21,6 +21,8 @@ export const tr: Translation = {
 	[Key.wordsCount]: "kelime",
 	[Key.minuteCount]: "dakika",
 	[Key.minutesCount]: "dakika",
+	[Key.imageCount]: "görsel",
+	[Key.imagesCount]: "görsel",
 	[Key.postCount]: "gönderi",
 	[Key.postsCount]: "gönderiler",
 

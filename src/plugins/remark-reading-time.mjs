@@ -11,5 +11,17 @@ export function remarkReadingTime() {
 			Math.round(readingTime.minutes),
 		);
 		data.astro.frontmatter.words = readingTime.words;
+
+		let imageCount = 0;
+		const visit = (node) => {
+			if (node.type === "image" || node.type === "html" && /<img\s/.test(node.value || "")) {
+				imageCount++;
+			}
+			if (node.children) {
+				for (const child of node.children) visit(child);
+			}
+		};
+		visit(tree);
+		data.astro.frontmatter.imageCount = imageCount;
 	};
 }

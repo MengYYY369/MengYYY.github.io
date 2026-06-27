@@ -21,6 +21,8 @@ export const th: Translation = {
 	[Key.wordsCount]: "คำ",
 	[Key.minuteCount]: "นาที",
 	[Key.minutesCount]: "นาที",
+	[Key.imageCount]: "รูป",
+	[Key.imagesCount]: "รูป",
 	[Key.postCount]: "โพสต์",
 	[Key.postsCount]: "โพสต์",
 
