@@ -5,9 +5,9 @@ import Navbar from "@components/Navbar.astro";
 import SideBar from "@components/widget/SideBar.astro";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
-import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TOC from "../components/widget/TOC.astro";
 import { siteConfig } from "../config";
+import { url } from "../utils/url-utils";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_EXTEND,
@@ -57,14 +57,11 @@ const mainPanelTop = siteConfig.banner.enable
 	return <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden" style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
 		<div class="banner-carousel relative w-full h-full">
 			{bannerSrcs.map((src, i) => (
-				<ImageWrapper
-					class:list={["banner-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-700", { "opacity-0": i > 0 }]}
-					src={src}
-					position={siteConfig.banner.position}
-					alt={`Banner image ${i + 1}`}
-				/>
+				<div class:list={["banner-item absolute inset-0 overflow-hidden transition-opacity duration-700", { "opacity-0": i > 0 }]}>
+					<img src={src.startsWith('/') ? url(src) : `/${src}`} alt={`Banner ${i + 1}`} class="w-full h-full object-cover" style={`object-position: ${siteConfig.banner.position || 'center'}`} />
+				</div>
 			))}
-			{bannerSrcs.length > 1 && <div class="banner-dots absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+			{bannerSrcs.length > 1 && <div class="banner-dots absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
 				{bannerSrcs.map((_, i) => (
 					<button class:list={["banner-dot w-2.5 h-2.5 rounded-full transition-colors duration-300 cursor-pointer", i === 0 ? "bg-white" : "bg-white/40"]} aria-label={`Go to slide ${i + 1}`}></button>
 				))}

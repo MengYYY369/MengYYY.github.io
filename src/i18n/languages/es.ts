@@ -21,6 +21,8 @@ export const es: Translation = {
 	[Key.wordsCount]: "palabras",
 	[Key.minuteCount]: "minuto",
 	[Key.minutesCount]: "minutos",
+	[Key.imageCount]: "imagen",
+	[Key.imagesCount]: "imágenes",
 	[Key.postCount]: "publicación",
 	[Key.postsCount]: "publicaciones",
 

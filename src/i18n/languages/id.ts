@@ -21,6 +21,8 @@ export const id: Translation = {
 	[Key.wordsCount]: "kata",
 	[Key.minuteCount]: "menit",
 	[Key.minutesCount]: "menit",
+	[Key.imageCount]: "gambar",
+	[Key.imagesCount]: "gambar",
 	[Key.postCount]: "postingan",
 	[Key.postsCount]: "postingan",
 

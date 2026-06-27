@@ -46,6 +46,7 @@ export const navBarConfig: NavBarConfig = {
 	links: [
 		LinkPreset.Home,
 		LinkPreset.Archive,
+		LinkPreset.About,
 		{
 			name: "Discord",
 			url: "https://discord.gg/jfzkHZu8QV",

@@ -21,6 +21,8 @@ export const ja: Translation = {
 	[Key.wordsCount]: "文字",
 	[Key.minuteCount]: "分",
 	[Key.minutesCount]: "分",
+	[Key.imageCount]: "张图片",
+	[Key.imagesCount]: "张图片",
 	[Key.postCount]: "件の投稿",
 	[Key.postsCount]: "件の投稿",
 

@@ -21,6 +21,8 @@ export const vi: Translation = {
 	[Key.wordsCount]: "từ",
 	[Key.minuteCount]: "phút đọc",
 	[Key.minutesCount]: "phút đọc",
+	[Key.imageCount]: "ảnh",
+	[Key.imagesCount]: "ảnh",
 	[Key.postCount]: "bài viết",
 	[Key.postsCount]: "bài viết",
 
