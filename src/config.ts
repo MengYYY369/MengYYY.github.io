@@ -8,8 +8,8 @@ import type {
 import { LinkPreset } from "./types/config";
 
 export const siteConfig: SiteConfig = {
-	title: "My Mods",
-	subtitle: "",
+	title: "My ",
+	subtitle: " Mods",
 	lang: "en",
 	themeColor: {
 		hue: 200,
@@ -18,6 +18,7 @@ export const siteConfig: SiteConfig = {
 	banner: {
 		enable: true,
 		position: "center",
+		dotsBottom: "4rem",
 		credit: {
 			enable: false,
 			text: "",
