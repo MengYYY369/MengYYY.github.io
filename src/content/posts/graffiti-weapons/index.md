@@ -6,6 +6,9 @@ image: ./logo.png
 tags:
   - DayZ
   - Mod
+  - Graffiti
+  - Weapons
+  - Firearms
 category: DayZ
 lang: en
 ---

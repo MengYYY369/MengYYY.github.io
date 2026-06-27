@@ -6,6 +6,9 @@ image: ./logo.png
 tags:
   - DayZ
   - Mod
+  - CODM
+  - Weapons
+  - Firearms
 category: DayZ
 lang: en
 ---

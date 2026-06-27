@@ -6,6 +6,10 @@ image: ./Logo_Big.png
 tags:
   - DayZ
   - Mod
+  - Delta Force
+  - Tactical Gear
+  - Armor
+  - Equipment
 category: DayZ
 lang: en
 ---

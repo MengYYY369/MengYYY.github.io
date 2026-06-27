@@ -6,6 +6,8 @@ image: ./logo.png
 tags:
   - DayZ
   - Mod
+  - Backpack
+  - Equipment
 category: DayZ
 lang: en
 ---

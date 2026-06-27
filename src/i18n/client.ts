@@ -1,6 +1,14 @@
 import { writable } from "svelte/store";
 import { en } from "./languages/en";
 import { zh_CN } from "./languages/zh_CN";
+import { zh_TW } from "./languages/zh_TW";
+import { ja } from "./languages/ja";
+import { ko } from "./languages/ko";
+import { es } from "./languages/es";
+import { id } from "./languages/id";
+import { th } from "./languages/th";
+import { tr } from "./languages/tr";
+import { vi } from "./languages/vi";
 import type I18nKey from "./i18nKey";
 import type { SupportedLang } from "../utils/lang-utils";
 import { getStoredLang, setLang as persistLang, applyLangToDocument } from "../utils/lang-utils";
@@ -8,6 +16,14 @@ import { getStoredLang, setLang as persistLang, applyLangToDocument } from "../u
 const translations: Record<string, Record<string, string>> = {
 	en,
 	zh_CN,
+	zh_TW,
+	ja,
+	ko,
+	es,
+	id,
+	th,
+	tr,
+	vi,
 };
 
 export const currentLang = writable<SupportedLang>(

@@ -6,6 +6,8 @@ image: ./Logo.png
 tags:
   - DayZ
   - Mod
+  - The First Descendant
+  - Backpack
 category: DayZ
 lang: en
 ---

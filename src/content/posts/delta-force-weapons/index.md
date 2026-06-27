@@ -6,6 +6,9 @@ image: ./Logo_Big.png
 tags:
   - DayZ
   - Mod
+  - Delta Force
+  - Weapons
+  - Firearms
 category: DayZ
 lang: en
 ---

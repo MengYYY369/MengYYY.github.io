@@ -6,6 +6,9 @@ image: ./View.png
 tags:
   - DayZ
   - Mod
+  - Armor
+  - Equipment
+  - Clothing
 category: DayZ
 lang: en
 ---

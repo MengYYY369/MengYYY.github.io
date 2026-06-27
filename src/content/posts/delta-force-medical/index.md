@@ -6,6 +6,8 @@ image: ./Logo_Big.png
 tags:
   - DayZ
   - Mod
+  - Delta Force
+  - Medical
 category: DayZ
 lang: en
 ---

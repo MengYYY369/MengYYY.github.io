@@ -6,6 +6,7 @@ image: ./view.png
 tags:
   - DayZ
   - Mod
+  - Zombie
 category: DayZ
 lang: en
 ---
