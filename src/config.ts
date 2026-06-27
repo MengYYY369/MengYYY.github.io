@@ -18,7 +18,7 @@ export const siteConfig: SiteConfig = {
 	banner: {
 		enable: true,
 		position: "center",
-		dotsBottom: "6rem",
+		dotsBottom: "4rem",
 		credit: {
 			enable: false,
 			text: "",

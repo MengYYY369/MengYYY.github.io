@@ -369,42 +369,42 @@ function showBanner() {
 	// Shuffle dots to match
 	const dots = document.querySelectorAll('.banner-dot');
 	const dotArray = Array.from(dots);
-	const dotParent = dotArray.length > 0 ? dotArray[0].parentNode : null;
-	if (dotParent) {
+	const dotsContainer = document.querySelector('.banner-dots');
+	if (dotsContainer && dotArray.length > 0) {
 		for (let i = dotArray.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1));
 			[dotArray[i], dotArray[j]] = [dotArray[j], dotArray[i]];
 		}
-		dotArray.forEach(d => dotParent.appendChild(d));
+		dotArray.forEach(d => dotsContainer.appendChild(d));
 		dotArray.forEach(d => { d.classList.remove('bg-white'); d.classList.add('bg-white/40'); });
 	}
 
-	// Fade in first slide
-	slides[0].classList.remove('opacity-0');
+	// Fade in first slide (use shuffled array)
+	slideArray[0].classList.remove('opacity-0');
 	if (dotArray[0]) { dotArray[0].classList.remove('bg-white/40'); dotArray[0].classList.add('bg-white'); }
 
 	// If only one slide, no carousel needed
-	if (slides.length <= 1) return;
+	if (slideArray.length <= 1) return;
 
-	// Carousel logic
+	// Carousel logic - use slideArray (shuffled order) for all operations
 	let currentSlide = 0;
 	const interval = 5000;
 	let timer: ReturnType<typeof setInterval>;
 
 	function goToSlide(index: number) {
-		slides[currentSlide].classList.add('opacity-0');
+		slideArray[currentSlide].classList.add('opacity-0');
 		if (dotArray[currentSlide]) dotArray[currentSlide].classList.remove('bg-white');
 		if (dotArray[currentSlide]) dotArray[currentSlide].classList.add('bg-white/40');
 
 		currentSlide = index;
 
-		slides[currentSlide].classList.remove('opacity-0');
+		slideArray[currentSlide].classList.remove('opacity-0');
 		if (dotArray[currentSlide]) dotArray[currentSlide].classList.remove('bg-white/40');
 		if (dotArray[currentSlide]) dotArray[currentSlide].classList.add('bg-white');
 	}
 
 	function nextSlide() {
-		goToSlide((currentSlide + 1) % slides.length);
+		goToSlide((currentSlide + 1) % slideArray.length);
 	}
 
 	function startAutoPlay() {
@@ -427,10 +427,10 @@ function showBanner() {
 	});
 
 	// Pause on hover
-	const wrapper = document.getElementById('banner-wrapper');
-	if (wrapper) {
-		wrapper.addEventListener('mouseenter', stopAutoPlay);
-		wrapper.addEventListener('mouseleave', startAutoPlay);
+	const dotsWrapper = document.querySelector('.banner-dots');
+	if (dotsWrapper) {
+		dotsWrapper.addEventListener('mouseenter', stopAutoPlay);
+		dotsWrapper.addEventListener('mouseleave', startAutoPlay);
 	}
 }
 
