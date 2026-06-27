@@ -9,7 +9,7 @@ import { LinkPreset } from "./types/config";
 
 export const siteConfig: SiteConfig = {
 	title: "My Mods",
-	subtitle: "My Mods",
+	subtitle: "",
 	lang: "en",
 	themeColor: {
 		hue: 200,
@@ -17,17 +17,6 @@ export const siteConfig: SiteConfig = {
 	},
 	banner: {
 		enable: true,
-		src: [
-			"assets/images/banner_1.jpg",
-			"assets/images/banner_2.jpg",
-			"assets/images/banner_3.jpg",
-			"assets/images/banner_4.jpg",
-			"assets/images/banner_5.jpg",
-			"assets/images/banner_6.png",
-			"assets/images/banner_7.png",
-			"assets/images/banner_8.png",
-			"assets/images/banner_9.png",
-		],
 		position: "center",
 		credit: {
 			enable: false,

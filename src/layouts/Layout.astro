@@ -38,14 +38,13 @@ const isHomePage = pathsEqual(Astro.url.pathname, url("/"));
 // defines global css variables
 // why doing this in Layout instead of GlobalStyles: https://github.com/withastro/astro/issues/6728#issuecomment-1502203757
 const configHue = siteConfig.themeColor.hue;
-if (!banner || typeof banner !== "string" || banner.trim() === "") {
-	const src = siteConfig.banner.src;
-	banner = Array.isArray(src) ? src[0] : src;
-}
-
-// TODO don't use post cover as banner for now
 const bannerSrc = siteConfig.banner.src;
-banner = Array.isArray(bannerSrc) ? bannerSrc[0] : bannerSrc;
+const firstBannerSrc = Array.isArray(bannerSrc) ? bannerSrc[0] : bannerSrc;
+if (!banner || typeof banner !== "string" || banner.trim() === "") {
+	banner = firstBannerSrc;
+}
+// TODO don't use post cover as banner for now
+banner = firstBannerSrc;
 
 const enableBanner = siteConfig.banner.enable;
 
