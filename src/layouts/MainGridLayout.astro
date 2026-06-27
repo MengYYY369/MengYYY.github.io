@@ -10,6 +10,7 @@ import { siteConfig } from "../config";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_EXTEND,
+	BANNER_HEIGHT_HOME,
 	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import Layout from "./Layout.astro";
@@ -58,6 +59,7 @@ const mainPanelTop = siteConfig.banner.enable
 
 <!-- Banner -->
 {siteConfig.banner.enable && bannerSrcs.length > 0 && (
+	<>
 	<div id="banner-wrapper" class="absolute w-full transition duration-700 overflow-hidden pointer-events-none" style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
 		<div class="banner-carousel relative w-full h-full">
 			{bannerSrcs.map((src, i) => (
@@ -65,13 +67,14 @@ const mainPanelTop = siteConfig.banner.enable
 					<img src={src} alt={`Banner ${i + 1}`} class="w-full h-full object-cover" style={`object-position: ${siteConfig.banner.position || 'center'}`} />
 				</div>
 			))}
-			{bannerSrcs.length > 1 && <div class="banner-dots absolute left-1/2 -translate-x-1/2 z-40 flex gap-2 pointer-events-auto" style={`bottom: ${siteConfig.banner.dotsBottom || '2rem'}`}>
-				{bannerSrcs.map((_, i) => (
-					<button class:list={["banner-dot w-2.5 h-2.5 rounded-full transition-colors duration-300 cursor-pointer", i === 0 ? "bg-white" : "bg-white/40"]} aria-label={`Go to slide ${i + 1}`}></button>
-				))}
-			</div>}
 		</div>
 	</div>
+	{bannerSrcs.length > 1 && <div class="banner-dots absolute left-1/2 -translate-x-1/2 z-[45] flex gap-2 pointer-events-auto" style={`top: calc(${BANNER_HEIGHT_HOME}vh - ${siteConfig.banner.dotsBottom || '2rem'} - 10px)`}>
+		{bannerSrcs.map((_, i) => (
+			<button class:list={["banner-dot w-2.5 h-2.5 rounded-full transition-colors duration-300 cursor-pointer", i === 0 ? "bg-white" : "bg-white/40"]} aria-label={`Go to slide ${i + 1}`}></button>
+		))}
+	</div>}
+	</>
 )}
 
 <!-- Main content -->

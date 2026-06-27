@@ -190,6 +190,11 @@ const bannerOffset =
 		@apply opacity-0 -translate-y-16
 	}
 }
+@media (min-width: 1024px) {
+	.enable-banner:not(.lg\:is-home) .banner-dots {
+		top: calc(var(--banner-height) - var(--dots-bottom, 4rem) - 10px);
+	}
+}
 </style>
 
 <script>
@@ -408,6 +413,7 @@ function showBanner() {
 	}
 
 	function startAutoPlay() {
+		clearInterval(timer);
 		timer = setInterval(nextSlide, interval);
 	}
 
